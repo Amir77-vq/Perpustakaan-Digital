@@ -98,3 +98,57 @@ button:hover {
     width: 250px;
     height: 100vh;
 }
+
+/* FULL HEIGHT */
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;   /* tengah kiri-kanan */
+    align-items: center;       /* tengah atas-bawah */
+    background: #f5f5f5;
+}
+
+/* CONTAINER */
+.container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* CARD */
+.card {
+    width: 300px;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background: black;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.link {
+    text-align: center;
+    font-size: 12px;
+}

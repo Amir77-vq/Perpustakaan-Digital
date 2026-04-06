@@ -1,0 +1,94 @@
+
+/* 1. Card & Layout Fix */
+.card {
+    box-shadow: 0 20px 27px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 2. Styling Input (Sapu Jagat untuk semua class yang Abang pakai) */
+.input-custom, 
+.input-field-custom,
+.form-control.input-field-custom,
+.form-control.input-custom {
+    border: 1px solid #d2d6da !important; /* Garis abu-abu tegas */
+    border-radius: 8px !important;
+    padding: 10px 15px !important;
+    background-color: #fff !important;
+    display: block;
+    width: 100%; /* Default penuh, diatur max-width lewat inline style di Blade */
+    font-size: 14px !important;
+    color: #495057 !important;
+    transition: all 0.2s ease;
+}
+
+/* 3. Efek Fokus saat Input Diklik */
+.input-custom:focus, 
+.input-field-custom:focus {
+    border-color: #2152ff !important;
+    box-shadow: 0 0 0 2px rgba(33, 82, 255, 0.2) !important;
+    outline: none !important;
+    background-color: #fff !important;
+}
+
+/* 4. Label Styling */
+label {
+    color: #344767 !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    margin-bottom: 8px;
+}
+
+/* 5. Handle Validasi & Pesan Error */
+/* Sembunyikan pesan error secara default */
+.invalid-feedback, 
+.error-text-custom {
+    display: none; 
+    font-size: 12px !important;
+    color: #ea0606 !important;
+    margin-top: 5px !important;
+    font-weight: 500 !important;
+}
+
+/* Garis merah saat input tidak valid */
+.is-invalid, 
+.is-invalid-custom {
+    border-color: #ea0606 !important;
+}
+
+/* Tampilkan pesan error jika ada class invalid pada input sebelumnya */
+.is-invalid + .invalid-feedback,
+.is-invalid-custom + .error-text-custom,
+.is-invalid + .error-text-custom,
+.input-custom.is-invalid ~ .invalid-feedback {
+    display: block !important;
+}
+
+/* 6. Custom Buttons (Batal & Simpan/Update) */
+.btn-outline-custom {
+    border: 1px solid #344767 !important;
+    color: #344767 !important;
+    background-color: transparent !important;
+    border-radius: 8px !important;
+    font-weight: bold !important;
+    text-transform: none !important;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-custom:hover {
+    background-color: #344767 !important;
+    color: #fff !important;
+}
+
+.btn-simpan-custom {
+    background: linear-gradient(310deg, #2152ff, #21d4fd) !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+    border: none !important;
+}
+
+/* 7. Khusus Input File (Cover) */
+input[type="file"].input-field-custom {
+    padding: 8px 12px !important;
+    line-height: 1.5;
+}

@@ -1,0 +1,23 @@
+/* public/assets/css/style-create-buku.css */
+
+.custom-file-input {
+    padding: 0 !important; /* Menghilangkan space kiri agar tombol nempel ke pojok */
+    height: auto !important;
+    overflow: hidden;
+}
+
+.custom-file-input::file-selector-button {
+    border: none;
+    background: #e9ecef; /* Abu pudar */
+    padding: 10px 20px;
+    margin-right: 15px;
+    color: #495057;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-right: 1px solid #d2d6da; /* Garis pembatas tipis */
+}
+
+.custom-file-input::file-selector-button:hover {
+    background: #dee2e6; /* Sedikit lebih gelap saat hover */
+}

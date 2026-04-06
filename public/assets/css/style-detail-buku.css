@@ -1,0 +1,103 @@
+.book-cover-detail-small {
+    background-color: #2c1ee9;
+    border-radius: 1rem;
+    width: 300px; 
+    height: 400px;
+    margin: 0 auto; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.book-cover-detail-small img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    border-radius: 1rem;
+}
+
+@media (max-width: 576px) {
+    .book-cover-detail-small {
+        width: 210px;
+        height: 280px; 
+    }
+}
+
+.label-custom-small {
+    font-size: 0.7rem; 
+    text-transform: uppercase;
+    color: #8392ab;
+    font-weight: 700;
+}
+
+.value-custom-small {
+    font-size: 1.0rem; 
+    color: #344767;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+}
+
+.horizontal-custom {
+    background-image: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.4), transparent);
+    height: 2px; 
+    margin: 1.5rem 0;
+    border: 0;
+    opacity: 0.35; 
+}
+
+@media (max-width: 991px) {
+    .book-cover-detail-small {
+        min-height: 250px;
+    }
+}
+
+.book-cover-wrapper-fixed {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%); 
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.book-cover-wrapper-fixed img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.d-flex.gap-2.mt-4 a[style*="background: linear-gradient"] {
+    background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%) !important;
+    color: white !important;
+    text-decoration: none !important;
+}
+
+.d-flex.gap-2.mt-4 a[style*="background: linear-gradient"]:focus,
+.d-flex.gap-2.mt-4 a[style*="background: linear-gradient"]:active,
+.d-flex.gap-2.mt-4 a[style*="background: linear-gradient"]:hover {
+    background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%) !important;
+    color: white !important;
+    opacity: 0.9 !important;
+}
+
+.btn-primary, 
+.btn-primary:hover, 
+.btn-primary:focus, 
+.btn-primary:active, 
+.btn-primary.active {
+    background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%) !important;
+    color: #fff !important;
+    border: none !important;
+    box-shadow: 0 4px 7px -1px rgba(0, 0, 0, 0.11), 0 2px 4px -1px rgba(0, 0, 0, 0.07) !important;
+}
+
+/* Menghilangkan efek warna default saat ditekan (ripple/focus) */
+.btn:focus-visible, .btn:focus {
+    box-shadow: 0 0 0 2px #21d4fd !important;
+    outline: none !important;
+}

@@ -1,60 +1,59 @@
 <?php
 
 use App\Models\User;
+use App\Models\Buku;
+use App\Models\Peminjaman;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\BukuController;
+use App\Http\Controllers\PeminjamanController;
+use App\Http\Controllers\PengembalianController;
+use App\Http\Controllers\PetugasController;
 
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
+// --- GUEST ROUTES ---
+Route::middleware('guest')->group(function () {
+    Route::get('/login', fn() => view('auth.login'))->name('login');
 
-Route::post('/login', function (Request $request) {
+    Route::post('/login', function (Request $request) {
+        $credentials = $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required',
+            'role'     => 'required'
+        ]);
 
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-        'role' => 'required'
-    ]);
+        $credentials['role'] = strtolower($request->role);
 
-    if (Auth::attempt([
-        'email' => $request->email,
-        'password' => $request->password,
-        'role' => $request->role
-    ])) {
-        $request->session()->regenerate();
-        return redirect('/dashboard');
-    }
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            return redirect('/dashboard');
+        }
+        return back()->with('error', 'Email / Password / Role salah');
+    })->name('login.post');
 
-    return back()->with('error', 'Email / Password salah');
+    Route::get('/register', fn() => view('auth.register'))->name('register');
 
-})->name('login.post');
+    Route::post('/register', function (Request $request) {
+        $request->validate([
+            'name'     => 'required',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
+            'role'     => 'required'
+        ]);
 
-Route::get('/register', function () {
-    return view('auth.register');
-})->name('register');
+        User::create([
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
+            'role'     => strtolower($request->role)
+        ]);
 
-Route::post('/register', function (Request $request) {
+        return redirect('/login');
+    })->name('register.post');
+});
 
-    $request->validate([
-        'name' => 'required',
-        'email' => 'required|email|unique:users,email',
-        'password' => 'required|min:6',
-        'role' => 'required'
-    ]);
-
-    User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'role' => $request->role
-    ]);
-
-    return redirect('/login');
-
-})->name('register.post');
-
+// --- LOGOUT ---
 Route::post('/logout', function () {
     Auth::logout();
     request()->session()->invalidate();
@@ -62,53 +61,98 @@ Route::post('/logout', function () {
     return redirect('/login');
 })->name('logout');
 
-Route::get('/', function () {
-    return redirect('/dashboard');
-});
+Route::get('/', fn() => redirect('/dashboard'));
 
-Route::middleware(['auth'])->get('/dashboard', function () {
-    $role = auth()->user()->role;
+// --- AUTHENTICATED ROUTES ---
+Route::middleware(['auth'])->group(function () {
 
-    return match ($role) {
-        'anggota' => view('anggota.dashboard'),
-        'petugas' => view('petugas.dashboard'),
-        'kepala' => view('kepala.dashboard'),
-        default => abort(403)
-    };
-})->name('dashboard');
+    // --- DASHBOARD CENTRAL ---
+    Route::get('/dashboard', function () {
+        $userId = auth()->id();
+        $user   = auth()->user();
+        $role   = strtolower($user->role);
 
-Route::middleware(['auth', 'role:anggota'])->group(function () {
-    Route::get('/buku', fn() => view('anggota.buku'));
-    Route::get('/peminjaman', fn() => view('anggota.peminjaman'));
-    Route::get('/pengembalian', fn() => view('anggota.pengembalian'));
-    Route::get('/history', fn() => view('anggota.history'));
-});
+        $books = Buku::latest()->take(8)->get();
 
-Route::middleware(['auth', 'role:petugas'])->group(function () {
-    Route::get('/petugas/buku', fn() => view('petugas.buku'));
-});
+        if ($role === 'anggota') {
+            $recentLoans = Peminjaman::with('buku')
+                ->where('user_id', $userId)
+                ->latest()
+                ->take(5)
+                ->get();
 
-Route::middleware(['auth', 'role:kepala'])->group(function () {
-    Route::get('/laporan', fn() => view('kepala.laporan-buku'));
-    Route::get('/laporan/peminjaman', fn() => view('kepala.laporan-peminjaman'));
-    Route::get('/laporan/pengembalian', fn() => view('kepala.laporan-pengembalian'));
-    Route::get('/laporan/denda', fn() => view('kepala.laporan-denda'));
-});
+            $totalPeminjaman   = Peminjaman::where('user_id', $userId)->count();
+            $sedangDipinjam    = Peminjaman::where('user_id', $userId)->where('status', 'dipinjam')->count();
+            $totalPengembalian = Peminjaman::where('user_id', $userId)->where('status', 'dikembalikan')->count();
+            $totalDenda        = Peminjaman::where('user_id', $userId)->sum('denda');
 
-Route::middleware(['auth', 'role:anggota'])->group(function () {
-    Route::get('/pengembalian', fn() => view('anggota.pengembalian'));
-    Route::get('/history', fn() => view('anggota.history'));
-});
+            return view('anggota.dashboard', compact('books', 'recentLoans', 'totalPeminjaman', 'sedangDipinjam', 'totalPengembalian', 'totalDenda'));
+        }
 
-Route::middleware(['auth', 'role:petugas'])->group(function () {
+        if ($role === 'petugas') {
+            // Memanggil fungsi index dari PetugasController
+            return (new PetugasController)->index();
+        }
 
-    Route::get('/buku', fn() => view('petugas.buku'));
-    Route::get('/anggota', fn() => view('petugas.anggota'));
-    Route::get('/peminjaman', fn() => view('petugas.peminjaman'));
-    Route::get('/pengembalian', fn() => view('petugas.pengembalian'));
-    Route::get('/denda', fn() => view('petugas.denda'));
-});
+        if ($role === 'kepala') {
+            return view('kepala.dashboard', compact('books'));
+        }
 
-Route::middleware(['auth', 'role:kepala'])->group(function () {
-    Route::get('/laporan/buku', fn() => view('kepala.laporan-buku'));
+        abort(403, "Role ($role) tidak terdaftar di sistem.");
+    })->name('dashboard');
+
+    // --- ROLE: ANGGOTA ---
+    Route::middleware(['role:anggota'])->group(function () {
+        Route::prefix('buku')->group(function () {
+            Route::get('/', [BukuController::class, 'index'])->name('buku.index');
+            Route::get('/detail/{id}', [BukuController::class, 'show'])->name('buku.show');
+            Route::get('/detail/{id}/peminjaman', [BukuController::class, 'ajukan'])->name('buku.ajukan');
+        });
+
+        Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('peminjaman.index');
+        Route::post('/peminjaman/store', [PeminjamanController::class, 'store'])->name('peminjaman.store');
+
+        Route::get('/history', [PeminjamanController::class, 'history'])->name('peminjaman.history');
+        Route::get('/pengembalian', [PengembalianController::class, 'index'])->name('pengembalian.index');
+        Route::get('/pengembalian/ajukan/{id}', [PengembalianController::class, 'ajukan'])->name('pengembalian.ajukan');
+        Route::post('/pengembalian/{id}/proses', [PengembalianController::class, 'proses'])->name('pengembalian.proses');
+    });
+
+    // --- ROLE: PETUGAS ---
+    Route::middleware(['role:petugas'])->group(function () {
+        Route::get('/petugas/buku', [PetugasController::class, 'buku'])->name('petugas.buku');
+
+        // CRUD BUKU
+        Route::get('/petugas/buku/create', [PetugasController::class, 'create'])->name('buku.create');
+        Route::post('/petugas/buku/store', [PetugasController::class, 'store'])->name('buku.store');
+        Route::get('/petugas/buku/{id}/edit', [PetugasController::class, 'edit'])->name('buku.edit');
+        Route::put('/petugas/buku/{id}/update', [PetugasController::class, 'update'])->name('buku.update'); // Ditambah /update agar sinkron
+        Route::delete('/petugas/buku/{id}', [PetugasController::class, 'destroy'])->name('buku.destroy');
+
+        // CRUD ANGGOTA
+        Route::get('/petugas/anggota', [PetugasController::class, 'anggota'])->name('petugas.anggota');
+        Route::get('/petugas/anggota/create', [PetugasController::class, 'anggotaCreate'])->name('anggota.create');
+        Route::post('/petugas/anggota/store', [PetugasController::class, 'anggotaStore'])->name('anggota.store');
+        Route::get('/petugas/anggota/{id}/edit', [PetugasController::class, 'anggotaEdit'])->name('anggota.edit');
+        Route::put('/petugas/anggota/{id}/update', [PetugasController::class, 'anggotaUpdate'])->name('anggota.update'); // Ditambah /update agar sinkron
+        Route::delete('/petugas/anggota/{id}', [PetugasController::class, 'anggotaDestroy'])->name('anggota.destroy');
+        Route::post('/anggota/{id}/reset', [PetugasController::class, 'anggotaReset'])->name('anggota.reset');
+
+        // MANAJEMEN PEMINJAMAN PETUGAS
+        Route::get('/peminjaman-petugas', [PetugasController::class, 'peminjaman'])->name('petugas.peminjaman');
+        Route::post('/peminjaman/{id}/konfirmasi', [PetugasController::class, 'konfirmasiPeminjaman'])->name('peminjaman.konfirmasi');
+
+        // MANAJEMEN PENGEMBALIAN PETUGAS
+        Route::get('/pengembalian-petugas', [PetugasController::class, 'pengembalian'])->name('petugas.pengembalian');
+        Route::post('/pengembalian/konfirmasi/{id}', [PetugasController::class, 'konfirmasiPengembalian'])->name('pengembalian.konfirmasi');
+
+        // ROUTE DENDA
+        Route::get('/denda', [PetugasController::class, 'denda'])->name('petugas.denda');
+    });
+
+    // --- ROLE: KEPALA ---
+    Route::middleware(['role:kepala'])->group(function () {
+        Route::get('/laporan/buku', fn() => view('kepala.laporan-buku'))->name('kepala.laporan_buku');
+        Route::get('/laporan/peminjaman', fn() => view('kepala.laporan-peminjaman'))->name('kepala.laporan_peminjaman');
+    });
 });

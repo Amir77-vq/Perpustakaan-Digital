@@ -1,0 +1,24 @@
+/* State Normal */
+.book-item {
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Efek saat sedang disaring (halus banget) */
+.book-item.fade-out {
+    opacity: 0;
+    transform: translateY(10px); /* Turun dikit aja pas pudar */
+}
+
+/* Hilang total dari layout */
+.is-hidden {
+    display: none !important;
+}
+
+/* Efek angkat kartu biar makin cakep */
+.book-card:hover {
+    transform: translateY(-8px);
+    transition: transform 0.3s ease;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}

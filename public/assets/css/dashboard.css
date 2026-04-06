@@ -17524,14 +17524,132 @@ pre[class*="language-"] {
 @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
   .ps {
     overflow: auto !important; } }
-.main-content {
-  margin-left: 260px !important;
+
+/* --- 1. SIDEBAR / SIDENAV (Fix Icon & Gradient) --- */
+.sidenav .nav-link.active, 
+.sidebar .nav-link.active {
+    background: linear-gradient(310deg, #2152ff, #21d4fd) !important;
+    border-radius: 0.75rem !important;
+    margin-right: 1rem !important;
+    margin-left: 1rem !important;
+    box-shadow: 0 20px 27px 0 rgba(0, 0, 0, 0.05) !important;
+    color: #fff !important;
 }
 
-.main-content {
-    margin-left: 0 !important;
+/* Memastikan ikon di dalam kotak putih tetap terlihat saat menu aktif */
+.sidenav .nav-link.active .icon i,
+.sidebar .nav-link.active .icon i {
+    color: #fff !important;
 }
 
-body {
-    background: red !important;
+.sidenav .nav-link.active .nav-link-text,
+.sidebar .nav-link.active .nav-link-text {
+    color: #fff !important;
+    font-weight: 600 !important;
+}
+
+/* --- 2. STATS CARDS (Geser ke Atas) --- */
+.stats-section {
+    margin-top: -20px !important;
+}
+
+.stats-card-custom {
+    min-height: 100px !important;
+    overflow: visible !important;
+}
+
+/* --- 3. REKOMENDASI BUKU (Layout Melayang) --- */
+.rekom-card {
+    border-radius: 15px !important;
+    border: none !important;
+    margin-top: 60px;
+    background: #fff;
+    min-height: 220px; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+.rekom-card:hover {
+    transform: translateY(-5px);
+}
+
+.rekom-cover-wrapper {
+    width: 75%; 
+    aspect-ratio: 3 / 4;
+    margin: -45px auto 0 15px !important; 
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+    z-index: 10;
+    position: relative;
+}
+
+.no-cover-blue {
+    background: linear-gradient(310deg, #2152ff, #21d4fd) !important;
+}
+
+/* --- 4. TABEL PEMINJAMAN (Style Foto 2) --- */
+.peminjaman-container {
+    border-radius: 15px !important;
+    border: none !important;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
+    background: white;
+}
+
+.peminjaman-header {
+    background: linear-gradient(310deg, #2152ff, #21d4fd) !important;
+    padding: 15px 20px !important;
+}
+
+.peminjaman-container .table thead th {
+    border-bottom: 1px solid #f0f2f5 !important;
+    padding: 12px 24px !important;
+    background-color: white;
+    border-top: none;
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #8392ab;
+}
+
+.peminjaman-container .table tbody tr {
+    border-bottom: 1px solid #f0f2f5 !important;
+}
+
+.peminjaman-container .table tbody td {
+    padding: 12px 24px !important;
+    vertical-align: middle;
+    border: none !important;
+}
+
+/* Kotak cover kecil pink di tabel */
+.cover-box-small {
+    width: 30px; 
+    height: 40px; 
+    background-color: #e91e63; 
+    border-radius: 4px; 
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+/* --- 5. BADGE STATUS --- */
+.badge-pinjam {
+    background-color: #4caf50 !important;
+    color: white !important;
+    font-size: 10px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: inline-block;
+    font-weight: bold;
+}
+
+.badge-kembali {
+    background-color: #6c757d !important;
+    color: white !important;
+    font-size: 10px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: inline-block;
+    font-weight: bold;
 }

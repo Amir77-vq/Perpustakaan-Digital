@@ -4,21 +4,32 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class RoleMiddleware
 {
-    public function handle($request, Closure $next, ...$roles)
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @param  string[]  ...$roles
+     * @return mixed
+     */
+    public function handle(Request $request, Closure $next, ...$roles)
     {
-        // kalau belum login
-        if (!auth()->check()) {
-            return redirect('/login');
+        if (!Auth::check()) {
+            return redirect('/login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
-        // kalau role tidak sesuai
-        if (!in_array(auth()->user()->role, $roles)) {
-            abort(403, 'AKSES DITOLAK');
+        $userRole = strtolower(trim(Auth::user()->role));
+
+        $allowedRoles = array_map(fn($r) => strtolower(trim($r)), $roles);
+
+        if (in_array($userRole, $allowedRoles)) {
+            return $next($request);
         }
 
-        return $next($request);
+        abort(403, "AKSES DITOLAK: Role Anda adalah ($userRole), halaman ini hanya untuk (" . implode(', ', $roles) . ")");
     }
 }

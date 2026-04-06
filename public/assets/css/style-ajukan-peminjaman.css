@@ -1,0 +1,70 @@
+.book-cover-preview, .book-cover-wrapper-fixed, .book-cover-detail-small {
+    width: 100%;
+    max-width: 200px;
+    aspect-ratio: 3 / 4;
+    background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%) !important;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.book-cover-preview img, .book-cover-wrapper-fixed img, .book-cover-detail-small img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.label-custom-small {
+    font-size: 0.7rem; 
+    text-transform: uppercase;
+    color: #8392ab;
+    font-weight: 700;
+}
+
+.value-custom-small {
+    font-size: 1.0rem; 
+    color: #344767;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+}
+
+.horizontal-custom {
+    background-image: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.4), transparent);
+    height: 2px; 
+    margin: 1.5rem 0;
+    border: 0;
+    opacity: 0.35; 
+}
+
+/* FIX: Tambahin #peminjaman-page biar gak ngerusak navbar/logout */
+#peminjaman-page a[style*="background: linear-gradient"], 
+#peminjaman-page button[type="submit"] {
+    background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%) !important;
+    color: white !important;
+    border: none !important;
+    transition: none !important; 
+}
+
+#peminjaman-page a[style*="background: linear-gradient"]:hover,
+#peminjaman-page button[type="submit"]:hover,
+#peminjaman-page button[type="submit"]:focus,
+#peminjaman-page .btn-primary:active, 
+#peminjaman-page .btn-primary:focus {
+    background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%) !important;
+    opacity: 0.9 !important; 
+    color: white !important;
+    box-shadow: 0 4px 10px rgba(33, 82, 255, 0.2) !important;
+    outline: none !important;
+    filter: none !important; 
+}
+
+#peminjaman-page .btn-primary:hover, 
+#peminjaman-page .btn-primary:active, 
+#peminjaman-page .btn:active {
+    background-image: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%) !important;
+    background-color: transparent !important;
+}
