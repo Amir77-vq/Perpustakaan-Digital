@@ -1,9 +1,8 @@
 @extends('layouts.app')
 
 @push('styles')
-    <link href="{{ asset('assets/css/style-anggota-peminjaman.css') }}?v={{ time() }}" rel="stylesheet">
+    <link href="{{ asset('assets/css/style-anggota-pengembalian.css') }}?v={{ time() }}" rel="stylesheet">
     <style>
-        /* Style Badge Status agar mirip foto */
         .badge-status {
             padding: 5px 12px;
             border-radius: 6px;
@@ -11,28 +10,17 @@
             font-weight: 700;
             display: inline-block;
             text-align: center;
+            font-size: 0.65rem;
+            min-width: 90px;
         }
-        /* Warna Kuning untuk Menunggu */
-        .bg-waiting {
-            background-color: #f6e05e; /* Kuning cerah sesuai foto */
-            color: #ffffff;
-        }
-        /* Warna Hijau untuk Disetujui */
-        .bg-approved {
-            background-color: #48bb78; /* Hijau sesuai foto */
-            color: #ffffff;
-        }
-        /* Warna Merah untuk Ditolak */
-        .bg-rejected {
-            background-color: #f56565;
-            color: #ffffff;
-        }
-        .table-peminjaman tr {
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .judul-buku-bold {
-            color: #2d3748;
-            font-weight: 700;
+        
+        /* Gradasi disamakan dengan history sesuai perintah */
+        .bg-waiting  { background: linear-gradient(310deg, #fbcf33 0%, #fbb144 100%) !important; color: #ffffff !important; } 
+        .bg-approved { background: linear-gradient(310deg, #2dce89 0%, #6decb9 100%) !important; color: #ffffff !important; } 
+        .bg-rejected { background: linear-gradient(310deg, #ea0606 0%, #ff667c 100%) !important; color: #ffffff !important; } 
+
+        .table-peminjaman tbody tr:hover {
+            background-color: #f8f9fa;
         }
     </style>
 @endpush
@@ -42,37 +30,40 @@
 @endpush
 
 @section('content')
-<div class="container-fluid">
-    
+<div class="container-fluid py-4">
     <h3 class="font-weight-bold text-dark mb-1" style="font-size: 1.5rem;">Peminjaman Buku</h3>
     <p class="text-muted mb-4" style="font-size: 0.8rem;">Lihat daftar buku yg sedang atau pernah Anda pinjam.</p>
 
-    <div class="card card-peminjaman border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
-        <div class="card-header header-peminjaman d-flex justify-content-between align-items-center" style="background: #3b82f6; padding: 20px;">
-            <h5 class="text-white mb-0" style="font-weight: 600; font-size: 1rem;">Status Peminjaman</h5>
-            <div class="form-group mb-0">
-                <input type="text" class="form-control form-control-sm search-peminjaman" placeholder="Search.." 
-                    style="font-size: 0.75rem; border-radius: 8px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">
+    <div class="card card-peminjaman border-0 shadow-lg">
+        {{-- Header Melayang --}}
+        <div class="card-header header-peminjaman d-flex justify-content-between align-items-center">
+            <h5 class="text-white mb-0" style="font-weight: 600; font-size: 0.9rem;">Status Peminjaman</h5>
+            <div class="ms-auto">
+                <div class="input-group input-group-sm" style="width: 200px;">
+                    <input type="text" class="form-control search-peminjaman" placeholder="Cari buku..">
+                </div>
             </div>
         </div>
 
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-borderless table-peminjaman mb-0">
+                <table class="table table-peminjaman align-items-center mb-0">
                     <thead>
-                        <tr class="text-muted" style="font-size: 0.7rem; letter-spacing: 0.5px; border-bottom: 2px solid #edf2f7;">
-                            <th class="pl-4 py-4 font-weight-bold text-uppercase">NO</th>
-                            <th class="py-4 font-weight-bold text-uppercase">JUDUL BUKU</th>
-                            <th class="py-4 text-center font-weight-bold text-uppercase">TANGGAL PINJAM</th>
-                            <th class="py-4 text-center font-weight-bold text-uppercase">JATUH TEMPO</th>
-                            <th class="py-4 text-center font-weight-bold text-uppercase">STATUS</th>
+                        <tr class="text-muted">
+                            <th class="text-uppercase text-xxs font-weight-bolder opacity-7 ps-4">NO</th>
+                            <th class="text-uppercase text-xxs font-weight-bolder opacity-7">JUDUL BUKU</th>
+                            <th class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">TANGGAL PINJAM</th>
+                            <th class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">JATUH TEMPO</th>
+                            <th class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">STATUS</th>
                         </tr>
                     </thead>
                     <tbody style="font-size: 0.85rem;">
                         @forelse($peminjamans as $key => $item)
-                        <tr>
-                            <td class="align-middle pl-4 text-dark font-weight-bold">{{ $key + 1 }}</td>
-                            <td class="align-middle judul-buku-bold">{{ $item->judul_buku }}</td>
+                        <tr class="border-bottom">
+                            <td class="ps-4 align-middle text-secondary">{{ $key + 1 }}</td>
+                            <td class="align-middle">
+                                <span class="text-dark font-weight-bold judul-buku-bold">{{ $item->judul_buku }}</span>
+                            </td>
                             <td class="align-middle text-center text-secondary">
                                 {{ \Carbon\Carbon::parse($item->tgl_pinjam)->format('d/m/y') }}
                             </td>
@@ -80,21 +71,23 @@
                                 {{ \Carbon\Carbon::parse($item->jatuh_tempo)->format('d/m/y') }}
                             </td>
                             <td class="align-middle text-center">
-                                {{-- Logika Warna Status --}}
+                                {{-- Teks dirubah jadi PENDING sesuai perintah --}}
                                 @if($item->status == 'MENUNGGU' || $item->status == 'PENDING')
-                                    <span class="badge-status bg-waiting" style="font-size: 0.65rem; min-width: 90px;">MENUNGGU</span>
+                                    <span class="badge-status bg-waiting shadow-sm">PENDING</span>
                                 @elseif($item->status == 'DI SETUJUI' || $item->status == 'DIPINJAM')
-                                    <span class="badge-status bg-approved" style="font-size: 0.65rem; min-width: 90px;">DI SETUJUI</span>
+                                    <span class="badge-status bg-approved shadow-sm">DI SETUJUI</span>
                                 @elseif($item->status == 'DI TOLAK')
-                                    <span class="badge-status bg-rejected" style="font-size: 0.65rem; min-width: 90px;">DI TOLAK</span>
+                                    <span class="badge-status bg-rejected shadow-sm">DI TOLAK</span>
                                 @else
-                                    <span class="badge-status bg-secondary" style="font-size: 0.65rem; min-width: 90px;">{{ $item->status }}</span>
+                                    <span class="badge-status bg-secondary shadow-sm">{{ $item->status }}</span>
                                 @endif
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="text-center py-5 text-muted">Belum ada data peminjaman buku.</td>
+                            <td colspan="5" class="text-center py-5">
+                                <p class="text-muted mb-0">Wah, sepertinya Anda tidak punya pinjaman aktif.</p>
+                            </td>
                         </tr>
                         @endforelse
                     </tbody>

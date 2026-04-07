@@ -46,7 +46,7 @@
                 @elseif(Request::is('pengembalian-petugas*')) 
                     Konfirmasi Pengembalian
                 @elseif(Request::is('denda*')) 
-                    Daftar Denda Perpustakaan
+                    Denda Perpustakaan
                 @elseif(Request::is('peminjaman*')) 
                     Peminjaman Saya
                 @elseif(Request::is('history*')) 
@@ -66,15 +66,25 @@
         </div>
 
         <div class="d-flex align-items-center gap-3">
-            <div class="d-flex flex-column align-items-end me-2">
+            {{-- Info User (Gue balikin ke .name biar muncul bang) --}}
+            <div class="d-flex flex-column align-items-end me-1">
                 <span class="text-sm font-weight-bold text-dark">{{ Auth::user()->name }}</span>
                 <span class="text-xs text-secondary">{{ ucfirst(Auth::user()->role) }}</span>
             </div>
 
+            {{-- Icon Profil --}}
+            <a href="{{ route('profile') }}" class="nav-link text-body p-0">
+                <div class="avatar avatar-sm bg-gradient-info d-flex align-items-center justify-content-center shadow-sm" 
+                    style="width: 35px; height: 35px; border-radius: 50%;">
+                    <i class="fas fa-user text-white text-xs"></i>
+                </div>
+            </a>
+
+            {{-- Tombol Logout (Hanya Logo) --}}
             <form action="{{ route('logout') }}" method="POST" class="m-0">
                 @csrf
-                <button type="submit" class="btn btn-sm btn-outline-danger mb-0 px-3 py-1">
-                    Logout
+                <button type="submit" class="btn btn-link text-danger p-0 m-0 shadow-none" title="Logout">
+                    <i class="fas fa-sign-out-alt" style="font-size: 18px;"></i>
                 </button>
             </form>
 

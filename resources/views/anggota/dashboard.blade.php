@@ -71,29 +71,30 @@
   <div class="row">
     @foreach ($books as $book)
     <div class="col-xl-3 col-md-4 col-sm-6 mb-4">
-      <div class="card rekom-card shadow-sm">
-        <div class="rekom-cover-wrapper" style="height: 300px; overflow: hidden; border-radius: 10px 10px 0 0;">
+      <div class="card rekom-card shadow-sm" style="border-radius: 12px;">
+        <div class="rekom-cover-wrapper" style="height: 245px; overflow: hidden; border-radius: 12px 12px 0 0;">
             @if($book->cover)
-                {{-- PERBAIKAN DISINI: Pakai storage/ --}}
                 <img src="{{ asset('storage/' . $book->cover) }}" class="w-100 h-100" style="object-fit: cover;">
             @else
-                <div class="w-100 h-100 no-cover-blue" style="background: #e9ecef; display: flex; align-items: center; justify-content: center;">
+                <div class="w-100 h-100" style="background: #f8f9fa; display: flex; align-items: center; justify-content: center;">
                     <i class="fas fa-book text-secondary"></i>
                 </div>
             @endif
         </div>
-        <div class="card-body">
-          <h6 class="mb-0 text-sm font-weight-bold text-dark">{{ $book->judul }}</h6>
-          <p class="text-xs text-secondary mb-1">{{ $book->penulis }}</p>
+        <div class="card-body p-3">
+          <h6 class="mb-0 text-sm font-weight-bold text-dark text-truncate">{{ $book->judul }}</h6>
+          <p class="text-xs text-secondary mb-2 text-truncate">{{ $book->penulis }}</p>
           
+          {{-- FIX: Warna & Ukuran Tombol (Solid Status & Gradient Action) --}}
           <div class="d-flex justify-content-between align-items-center mt-3">
-            <p class="text-xs font-weight-bold mb-0 {{ $book->stok > 0 ? 'text-info' : 'text-danger' }}">
-              {{ $book->stok > 0 ? 'Tersedia' : 'Tidak Tersedia' }}
-            </p>
+            <span class="d-flex align-items-center justify-content-center" 
+                  style="background-color: {{ $book->stok > 0 ? '#2dce89' : '#f5365c' }}; color: #fff; width: 80px; height: 30px; border-radius: 6px; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; border: none;">
+              {{ $book->stok > 0 ? 'Tersedia' : 'Habis' }}
+            </span>
             
             <a href="{{ route('buku.show', ['id' => $book->id, 'from' => 'dashboard']) }}" 
-                class="btn btn-sm mb-0 px-3 text-white font-weight-bold" 
-                style="background: linear-gradient(310deg, #2152ff, #21d4fd); border-radius: 8px; text-transform: none; font-size: 0.7rem;">
+                class="d-flex align-items-center justify-content-center text-white" 
+                style="background: linear-gradient(310deg, #2152ff, #21d4fd); width: 80px; height: 30px; border-radius: 6px; text-transform: uppercase; font-size: 0.6rem; font-weight: 800; text-decoration: none;">
                 Detail
             </a>
           </div>
@@ -110,7 +111,7 @@
     <div class="card shadow-sm border-0" style="border-radius: 12px; background: #fff; margin-top: 20px;">
       <div class="mx-3 position-relative z-index-2">
         <div class="peminjaman-header shadow-primary px-3 d-flex align-items-center" 
-            style="background: linear-gradient(310deg, #2152ff, #21d4fd); border-radius: 6px; min-height: 60px; margin-top: -25px;">
+            style="background: linear-gradient(310deg, #2152ff, #21d4fd); border-radius: 6px; min-height: 50px; margin-top: -20px;">
           <h6 class="text-white mb-0 text-xs font-weight-bold" style="letter-spacing: 0.5px;">
               Peminjaman Terakhir
           </h6>
@@ -130,21 +131,35 @@
                 </thead>
                 <tbody>
                   @forelse($recentLoans as $loan)
+                  @php
+                    $statusName = strtoupper($loan->status);
+                    
+                    $color = match($statusName) {
+                        'WAITING'      => '#ffad46',
+                        'DIKEMBALIKAN' => '#2dce89', 
+                        'DIPINJAM'     => '#1172ef', 
+                        'PENDING'      => '#fbb144', 
+                        default        => '#adb5bd' 
+                    };
+                  @endphp
                   <tr style="border-bottom: 1px solid #f8f9fa;">
                     <td class="ps-3 py-2">
                       <p class="text-xs font-weight-bold mb-0 text-dark">{{ $loan->buku->judul ?? 'Buku Dihapus' }}</p>
                     </td>
                     <td class="align-middle text-center py-2">
-                      <div class="d-inline-block shadow-sm" style="width: 30px; height: 42px; background-color: #2152ff; border-radius: 3px; overflow: hidden;">
+                      <div class="d-inline-block shadow-sm" style="width: 30px; height: 40px; background-color: #eee; border-radius: 3px; overflow: hidden;">
                         @if($loan->buku && $loan->buku->cover)
-                          {{-- PERBAIKAN DISINI JUGA --}}
                           <img src="{{ asset('storage/' . $loan->buku->cover) }}" class="w-100 h-100" style="object-fit: cover;">
+                        @else
+                          <div class="w-100 h-100 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-book" style="font-size: 10px; color: #ccc;"></i>
+                          </div>
                         @endif
                       </div>
                     </td>
                     <td class="align-middle text-center py-2">
-                      <span class="badge" style="background-color: {{ $loan->status == 'dipinjam' ? '#66bb6a' : '#596c76' }}; color: #fff; border-radius: 4px; padding: 4px 8px; font-size: 8px; font-weight: 700;">
-                        {{ strtoupper($loan->status) }}
+                      <span class="badge shadow-sm" style="background-color: {{ $color }}; color: #fff; border-radius: 8px; padding: 6px 12px; font-size: 9px; font-weight: 800; border: none;">
+                        {{ $statusName }}
                       </span>
                     </td>
                     <td class="align-middle text-center py-2">

@@ -34,7 +34,6 @@
                         <div class="card-body p-3">
                             <div class="d-flex gap-3 mb-3">
                                 <div class="book-cover-wrapper" style="width: 89px; height: 115px; flex-shrink: 0;">
-                                    {{-- PERBAIKAN: Menggunakan helper storage dan cek kolom cover --}}
                                     @if($book->cover)
                                         <img src="{{ asset('storage/' . $book->cover) }}" class="w-100 h-100 shadow-sm"
                                             style="object-fit: cover; border-radius: 8px;" 

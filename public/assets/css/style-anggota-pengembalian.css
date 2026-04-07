@@ -1,9 +1,16 @@
-/* Container & Layout */
+/* style-anggota-pengembalian.css */
+
+/* --- 1. LAYOUT & CONTAINER --- */
 .container-fluid.py-4 {
     padding-top: 0 !important;
     position: relative !important;
 }
 
+.text-muted.mb-4 {
+    margin-bottom: 2.5rem !important;
+}
+
+/* --- 2. CARD UTAMA (EFEK MELAYANG) --- */
 .card.card-peminjaman {
     background-color: #ffffff !important;
     border-radius: 1rem !important;
@@ -11,17 +18,13 @@
     box-shadow: 0 20px 27px 0 rgba(0, 0, 0, 0.05) !important;
     margin-top: 4.3rem !important; 
     position: relative !important;
-    overflow: visible !important;
+    overflow: visible !important; /* WAJIB: Agar header tidak terpotong */
 }
 
-.text-muted.mb-4 {
-    margin-bottom: 2.5rem !important;
-}
-
-/* Header Biru */
+/* --- 3. CARD HEADER (GRADIENT BIRU) --- */
 .card-header.header-peminjaman {
     background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%) !important;
-    border-radius: 0.75rem 0.75rem 0 0 !important;
+    border-radius: 0.75rem !important; /* Disamakan agar simetris */
     margin-top: -1.5rem !important; 
     margin-left: 1rem !important;
     margin-right: 1rem !important;
@@ -32,6 +35,7 @@
     border: none !important;
 }
 
+/* Search Input inside Header */
 .search-peminjaman {
     background-color: transparent !important;
     border: 1px solid rgba(255, 255, 255, 0.6) !important;
@@ -45,7 +49,25 @@
     color: rgba(255, 255, 255, 0.8) !important;
 }
 
-/* Tabel Styling */
+/* --- 4. ALERT DENDA (BANNER BAWAH HEADER) --- */
+.alert-denda-final {
+    background: linear-gradient(310deg, #f5365c 0%, #f56036 100%) !important;
+    color: white !important;
+    margin-left: 1rem !important;
+    margin-right: 1rem !important;
+    padding: 10px 1.25rem !important;
+    border-radius: 0 0 0.75rem 0.75rem !important;
+    display: flex !important;
+    align-items: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 10px rgba(245, 54, 92, 0.15) !important;
+    position: relative !important;
+    z-index: 9 !important;
+    margin-top: -5px; /* Menempel halus dengan header */
+}
+
+/* --- 5. TABEL STYLING --- */
 .table-peminjaman thead th {
     font-weight: normal !important; 
     font-size: 0.65rem !important;
@@ -62,11 +84,12 @@
     color: #67748e !important;
 }
 
-.table-peminjaman tbody td.text-dark {
-    font-weight: 600 !important;
+.judul-buku-bold {
+    color: #344767 !important;
+    font-weight: 700 !important;
 }
 
-/* --- FITUR WARNA JATUH TEMPO --- */
+/* --- 6. STATUS & TOMBOL (DYNAMIS) --- */
 .text-jatuh-tempo-lewat {
     color: #ea0606 !important;
     font-weight: bold;
@@ -77,7 +100,6 @@
     font-weight: bold;
 }
 
-/* --- TOMBOL AJUKAN (GRADASI DINAMIS) --- */
 .btn-ajukan {
     color: white !important;
     border: none;
@@ -88,19 +110,19 @@
     text-transform: uppercase;
     transition: all 0.3s ease;
     cursor: pointer;
+    display: inline-block;
+    text-decoration: none;
 }
 
-/* Warna Default (Biru) */
+/* Gradasi Warna Tombol */
 .btn-biru {
     background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%) !important;
 }
 
-/* Warna Peringatan (Oren) */
 .btn-oren {
     background: linear-gradient(310deg, #f53939 0%, #fbcf33 100%) !important;
 }
 
-/* Warna Bahaya (Merah) */
 .btn-merah {
     background: linear-gradient(310deg, #ea0606 0%, #ff667c 100%) !important;
 }
@@ -109,21 +131,5 @@
     opacity: 0.8;
     transform: translateY(-1px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-}
-
-/* Alert Denda Banner */
-.alert-denda-final {
-    background-color: #f5365c !important;
     color: white !important;
-    margin-left: 1rem !important;
-    margin-right: 1rem !important;
-    padding: 10px 1.25rem !important;
-    border-radius: 0 0 0.75rem 0.75rem !important;
-    display: flex !important;
-    align-items: center;
-    font-weight: 600;
-    font-size: 0.85rem;
-    box-shadow: 0 4px 10px rgba(245, 54, 92, 0.15) !important;
-    position: relative !important;
-    z-index: 9 !important;
 }

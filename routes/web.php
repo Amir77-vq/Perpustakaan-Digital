@@ -66,6 +66,30 @@ Route::get('/', fn() => redirect('/dashboard'));
 // --- AUTHENTICATED ROUTES ---
 Route::middleware(['auth'])->group(function () {
 
+    // --- PROFILE ROUTES ---
+    Route::get('/profile', fn() => view('profile'))->name('profile');
+    
+    // RUTE UPDATE INI YANG BIKIN ERROR TADI KARENA GA ADA
+    Route::post('/profile/update', function (Request $request) {
+        $user = Auth::user();
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|min:6|confirmed',
+        ]);
+
+        if (isset($user->nama)) { $user->nama = $request->nama; } 
+        else { $user->name = $request->nama; }
+
+        $user->email = $request->email;
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+        $user->save();
+
+        return back()->with('success', 'Profil berhasil diperbarui!');
+    })->name('profile.update');
+
     // --- DASHBOARD CENTRAL ---
     Route::get('/dashboard', function () {
         $userId = auth()->id();
@@ -90,7 +114,6 @@ Route::middleware(['auth'])->group(function () {
         }
 
         if ($role === 'petugas') {
-            // Memanggil fungsi index dari PetugasController
             return (new PetugasController)->index();
         }
 
@@ -111,7 +134,6 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('peminjaman.index');
         Route::post('/peminjaman/store', [PeminjamanController::class, 'store'])->name('peminjaman.store');
-
         Route::get('/history', [PeminjamanController::class, 'history'])->name('peminjaman.history');
         Route::get('/pengembalian', [PengembalianController::class, 'index'])->name('pengembalian.index');
         Route::get('/pengembalian/ajukan/{id}', [PengembalianController::class, 'ajukan'])->name('pengembalian.ajukan');
@@ -121,32 +143,24 @@ Route::middleware(['auth'])->group(function () {
     // --- ROLE: PETUGAS ---
     Route::middleware(['role:petugas'])->group(function () {
         Route::get('/petugas/buku', [PetugasController::class, 'buku'])->name('petugas.buku');
-
-        // CRUD BUKU
         Route::get('/petugas/buku/create', [PetugasController::class, 'create'])->name('buku.create');
         Route::post('/petugas/buku/store', [PetugasController::class, 'store'])->name('buku.store');
         Route::get('/petugas/buku/{id}/edit', [PetugasController::class, 'edit'])->name('buku.edit');
-        Route::put('/petugas/buku/{id}/update', [PetugasController::class, 'update'])->name('buku.update'); // Ditambah /update agar sinkron
+        Route::put('/petugas/buku/{id}/update', [PetugasController::class, 'update'])->name('buku.update'); 
         Route::delete('/petugas/buku/{id}', [PetugasController::class, 'destroy'])->name('buku.destroy');
 
-        // CRUD ANGGOTA
         Route::get('/petugas/anggota', [PetugasController::class, 'anggota'])->name('petugas.anggota');
         Route::get('/petugas/anggota/create', [PetugasController::class, 'anggotaCreate'])->name('anggota.create');
         Route::post('/petugas/anggota/store', [PetugasController::class, 'anggotaStore'])->name('anggota.store');
         Route::get('/petugas/anggota/{id}/edit', [PetugasController::class, 'anggotaEdit'])->name('anggota.edit');
-        Route::put('/petugas/anggota/{id}/update', [PetugasController::class, 'anggotaUpdate'])->name('anggota.update'); // Ditambah /update agar sinkron
+        Route::put('/petugas/anggota/{id}/update', [PetugasController::class, 'anggotaUpdate'])->name('anggota.update'); 
         Route::delete('/petugas/anggota/{id}', [PetugasController::class, 'anggotaDestroy'])->name('anggota.destroy');
-        Route::post('/anggota/{id}/reset', [PetugasController::class, 'anggotaReset'])->name('anggota.reset');
+        Route::put('/anggota/{id}/reset', [PetugasController::class, 'anggotaReset'])->name('anggota.reset');
 
-        // MANAJEMEN PEMINJAMAN PETUGAS
         Route::get('/peminjaman-petugas', [PetugasController::class, 'peminjaman'])->name('petugas.peminjaman');
         Route::post('/peminjaman/{id}/konfirmasi', [PetugasController::class, 'konfirmasiPeminjaman'])->name('peminjaman.konfirmasi');
-
-        // MANAJEMEN PENGEMBALIAN PETUGAS
         Route::get('/pengembalian-petugas', [PetugasController::class, 'pengembalian'])->name('petugas.pengembalian');
         Route::post('/pengembalian/konfirmasi/{id}', [PetugasController::class, 'konfirmasiPengembalian'])->name('pengembalian.konfirmasi');
-
-        // ROUTE DENDA
         Route::get('/denda', [PetugasController::class, 'denda'])->name('petugas.denda');
     });
 

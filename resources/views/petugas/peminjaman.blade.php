@@ -73,9 +73,9 @@
                                         @if($status == 'MENUNGGU' || $status == 'PENDING')
                                             <span class="badge badge-sm" style="background-color: #fbc02d; color: #fff; font-size: 9px; padding: 5px 10px;">PENDING</span>
                                         @elseif($status == 'DIPINJAM')
-                                            <span class="badge badge-sm" style="background-color: #3f51b5; color: #fff; font-size: 9px; padding: 5px 10px;">DI PINJAM</span>
+                                            <span class="badge badge-sm" style="background-color: #3f51b5; color: #fff; font-size: 9px; padding: 5px 10px;">DIPINJAM</span>
                                         @elseif($status == 'KEMBALI' || $status == 'DIKEMBALIKAN')
-                                            <span class="badge badge-sm" style="background-color: #2dce89; color: #fff; font-size: 9px; padding: 5px 10px;">KEMBALI</span>
+                                            <span class="badge badge-sm" style="background-color: #2dce89; color: #fff; font-size: 9px; padding: 5px 10px;">DIKEMBALIKAN</span>
                                         @else
                                             <span class="badge badge-sm bg-secondary" style="font-size: 9px; padding: 5px 10px;">{{ $status }}</span>
                                         @endif

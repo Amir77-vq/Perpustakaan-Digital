@@ -75,9 +75,11 @@ class PetugasController extends Controller
     /**
      * Proses Konfirmasi Pengembalian
      */
+
     public function konfirmasiPengembalian($id)
     {
-        $pengembalian = Pengembalian::findOrFail($id);
+        // 1. Ambil data pengembalian
+        $pengembalian = Pengembalian::with('peminjaman')->findOrFail($id);
         $jatuhTempo = Carbon::parse($pengembalian->peminjaman->jatuh_tempo);
         $tglKembali = Carbon::now();
 
@@ -89,14 +91,25 @@ class PetugasController extends Controller
             $denda = $terlambat * 2000;
         }
 
+        // 2. Update tabel pengembalian
         $pengembalian->update([
             'tanggal_kembali' => $tglKembali->format('Y-m-d'),
             'terlambat' => $terlambat,
             'denda' => $denda,
-            'status' => 1
+            'status' => 1 
         ]);
 
-        return redirect()->back()->with('success', 'Pengembalian dikonfirmasi!');
+        // 3. Update tabel peminjaman
+        $pengembalian->peminjaman->update([
+            'status' => 'DIKEMBALIKAN',
+            'denda' => $denda, // Sync denda terakhir
+            'tanggal_pengembalian' => $tglKembali // Catat tanggal baliknya
+        ]);
+        
+        // 4. Tambah stok buku kembali karena buku sudah balik
+        $pengembalian->peminjaman->buku->increment('stok');
+
+        return redirect()->back()->with('success', 'Pengembalian dikonfirmasi dan status buku diperbarui!');
     }
 
     /**

@@ -104,13 +104,13 @@
                                     @endphp
 
                                     @if($status == 'dipinjam')
-                                        <span class="badge" style="background-color: #2152ff; color: #fff; border-radius: 4px; padding: 4px 8px; font-size: 8px; font-weight: 700;">DI PINJAM</span>
+                                        <span class="badge" style="background-color: #2152ff; color: #fff; border-radius: 4px; padding: 4px 8px; font-size: 8px; font-weight: 700;">DIPINJAM</span>
                                     @elseif($status == 'dikembalikan' || $status == 'kembali')
-                                        <span class="badge" style="background-color: #2dce89; color: #fff; border-radius: 4px; padding: 4px 8px; font-size: 8px; font-weight: 700;">DI KEMBALIKAN</span>
+                                        <span class="badge" style="background-color: #2dce89; color: #fff; border-radius: 4px; padding: 4px 8px; font-size: 8px; font-weight: 700;">DIKEMBALIKAN</span>
                                     @elseif($status == 'denda_dibayar' || $status == 'sudah_bayar')
                                         <span class="badge" style="background-color: #4caf50; color: #fff; border-radius: 4px; padding: 4px 8px; font-size: 8px; font-weight: 700;">DENDA DI BAYAR</span>
                                     @elseif($status == 'menunggu')
-                                        <span class="badge" style="background-color: #fb8c00; color: #fff; border-radius: 4px; padding: 4px 8px; font-size: 8px; font-weight: 700;">MENUNGGU</span>
+                                        <span class="badge" style="background-color: #fb8c00; color: #fff; border-radius: 4px; padding: 4px 8px; font-size: 8px; font-weight: 700;">PENDING</span>
                                     @else
                                         <span class="badge" style="background-color: #f44335; color: #fff; border-radius: 4px; padding: 4px 8px; font-size: 8px; font-weight: 700;">{{ strtoupper($status) }}</span>
                                     @endif

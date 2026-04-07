@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Peminjaman; 
 use App\Models\Buku;
 use App\Models\Pengembalian; // Tambahkan ini agar sinkron
-use Carbon\Carbon;          
+use Carbon\Carbon;           
 use Illuminate\Support\Facades\Auth; 
 
 class PeminjamanController extends Controller
