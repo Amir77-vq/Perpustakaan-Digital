@@ -2,7 +2,7 @@
     <div class="card-body p-3">
         <div class="d-flex gap-3">
             <div class="rekom-cover-wrapper shadow-lg" 
-                  style="width: 85px; height: 115px; flex-shrink: 0; background: #f0f2f5; border-radius: 8px; overflow: hidden; margin-top: -35px; z-index: 2; box-shadow: 0 8px 20px -8px rgba(0,0,0,0.3) !important;">
+                    style="width: 85px; height: 115px; flex-shrink: 0; background: #f0f2f5; border-radius: 8px; overflow: hidden; margin-top: -35px; z-index: 2; box-shadow: 0 8px 20px -8px rgba(0,0,0,0.3) !important;">
                 @if($book->cover)
                     <img src="{{ asset('assets/cover/' . $book->cover) }}" class="w-100 h-100" style="object-fit: cover;">
                 @else

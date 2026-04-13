@@ -17,12 +17,10 @@
 
                 <div class="card-body p-4 p-md-5">
                     <div class="row align-items-start">
-                        {{-- Cover Buku --}}
                         <div class="col-lg-3 col-md-4 mb-4">
                             <div class="book-cover-preview shadow-sm">
-                                {{-- PERBAIKAN: Jalur ke storage sesuai update sebelumnya --}}
                                 @if($book->cover)
-                                    <img src="{{ asset('storage/' . $book->cover) }}" alt="{{ $book->judul }}">
+                                    <img src="{{ asset('storage/cover/' . $book->cover) }}" alt="{{ $book->judul }}">
                                 @else
                                     <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-light" style="min-height: 250px; border-radius: 1rem;">
                                         <i class="fas fa-book fa-3x text-secondary mb-2"></i>
@@ -35,18 +33,19 @@
                         {{-- Info Pengembalian --}}
                         <div class="col-lg-9 col-md-8 ps-lg-5">
                             <h4 class="text-dark font-weight-bolder mb-1" style="font-size: 1.6rem;">{{ $book->judul }}</h4>
-                            <p class="text-sm text-muted mb-3">Penulis : <span class="text-dark font-weight-bold">{{ $book->penulis }}</span></p>
+                            
+                            {{-- GARIS DI BAWAH PENULIS --}}
+                            <div class="pb-3 mb-4" style="border-bottom: 2px solid #ebeef2;">
+                                <p class="text-sm text-muted mb-0">Penulis : <span class="text-dark font-weight-bold">{{ $book->penulis }}</span></p>
+                            </div>
 
-                            <hr class="horizontal-custom my-4" style="border-top: 1px solid #f0f2f5;">
-
-                            <div class="mb-3">
+                            {{-- GARIS DI BAWAH TANGGAL --}}
+                            <div class="pb-3 mb-4" style="border-bottom: 2px solid #ebeef2;">
                                 <p class="font-weight-bold mb-1 text-uppercase text-xs text-muted">Periode Peminjaman</p>
-                                <p class="text-dark font-weight-bold" style="font-size: 1.1rem;">
+                                <p class="text-dark font-weight-bold mb-0" style="font-size: 1.1rem;">
                                     {{ date('d M Y', strtotime($peminjaman->tgl_pinjam)) }} — {{ date('d M Y', strtotime($peminjaman->jatuh_tempo)) }}
                                 </p>
                             </div>
-
-                            <hr class="horizontal-custom my-4" style="border-top: 1px solid #f0f2f5;">
 
                             {{-- --- LOGIKA TAMPILAN DENDA --- --}}
                             @if($terlambat > 0)
@@ -72,13 +71,13 @@
                                     <input type="hidden" name="id_peminjaman" value="{{ $peminjaman->id }}">
 
                                     <div class="d-flex gap-2 mt-4">
-                                        <button type="submit" class="btn btn-denda mb-0"
-                                            style="border-radius: 6px; padding: 12px 30px; font-size: 0.8rem; font-weight: 700;">
+                                        <button type="submit" class="btn btn-denda mb-0 btn-no-bias"
+                                            style="border-radius: 8px; padding: 12px 30px; font-size: 0.8rem; font-weight: 700;">
                                             PROSES & BAYAR DENDA
                                         </button>
-                                        <a href="{{ route('pengembalian.index') }}" class="btn btn-outline-secondary mb-0"
-                                            style="border-radius: 6px; padding: 12px 30px; font-size: 0.8rem; font-weight: 700;">
-                                            Batal
+                                        <a href="{{ route('pengembalian.index') }}" class="btn btn-outline-secondary mb-0 btn-no-bias"
+                                            style="border-radius: 8px; padding: 12px 30px; font-size: 0.8rem; font-weight: 700; border: 1.5px solid #d2d6da;">
+                                            BATAL
                                         </a>
                                     </div>
                                 </form>
@@ -95,13 +94,13 @@
                                     <input type="hidden" name="id_peminjaman" value="{{ $peminjaman->id }}">
 
                                     <div class="d-flex gap-2 mt-4">
-                                        <button type="submit" class="btn btn-proses-simpel mb-0"
-                                            style="border-radius: 6px; padding: 12px 30px; font-size: 0.8rem; font-weight: 700;">
+                                        <button type="submit" class="btn btn-proses-simpel mb-0 btn-no-bias"
+                                            style="border-radius: 8px; padding: 12px 30px; font-size: 0.8rem; font-weight: 700;">
                                             KEMBALIKAN BUKU
                                         </button>
-                                        <a href="{{ route('pengembalian.index') }}" class="btn btn-outline-secondary mb-0"
-                                            style="border-radius: 6px; padding: 12px 30px; font-size: 0.8rem; font-weight: 700;">
-                                            Batal
+                                        <a href="{{ route('pengembalian.index') }}" class="btn btn-outline-secondary mb-0 btn-no-bias"
+                                            style="border-radius: 8px; padding: 12px 30px; font-size: 0.8rem; font-weight: 700; border: 1.5px solid #d2d6da;">
+                                            BATAL
                                         </a>
                                     </div>
                                 </form>
@@ -130,13 +129,13 @@
         border: none !important;
     }
 
-    #pengembalian-page .btn-proses-simpel:active, 
-    #pengembalian-page .btn-denda:active {
-        transform: scale(0.98);
-        filter: brightness(1.1);
+    /* Hilangkan Bias Biru Saat Klik */
+    .btn-no-bias:focus, .btn-no-bias:active {
+        box-shadow: none !important;
+        outline: none !important;
     }
 
-    /* Fix Layout Cover */
+    /* Layout Cover */
     #pengembalian-page .book-cover-preview {
         aspect-ratio: 3/4;
         border-radius: 1rem;

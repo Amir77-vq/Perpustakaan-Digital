@@ -16,8 +16,9 @@
                         }));
                     }
 
+                    // Tambahkan 'kepala' ke dalam filter biar gak muncul di breadcrumb
                     $segments = collect($allSegments)->filter(function ($value) {
-                        return !is_numeric($value) && strtolower($value) !== 'petugas'; 
+                        return !is_numeric($value) && !in_array(strtolower($value), ['petugas', 'kepala']); 
                     })->values()->all(); 
                 @endphp
 
@@ -37,20 +38,22 @@
             <h6 class="font-weight-bolder mb-0 text-capitalize">
                 @if(Request::is('dashboard')) 
                     Dashboard 
+                @elseif(Request::is('kepala/anggota*')) 
+                    Manajemen Anggota
+                @elseif(Request::is('laporan/peminjaman*')) 
+                    Laporan Peminjaman
+                @elseif(Request::is('laporan/pengembalian*')) 
+                    Laporan Pengembalian
+                @elseif(Request::is('laporan/denda*')) 
+                    Laporan Denda
+                @elseif(Request::is('laporan/buku*')) 
+                    Laporan Ketersediaan Buku
                 @elseif(Request::is('petugas/buku*')) 
                     Manajemen Buku
-                @elseif(Request::is('petugas/anggota*')) 
-                    Manajemen Anggota
                 @elseif(Request::is('peminjaman-petugas*')) 
                     Konfirmasi Peminjaman
                 @elseif(Request::is('pengembalian-petugas*')) 
                     Konfirmasi Pengembalian
-                @elseif(Request::is('denda*')) 
-                    Denda Perpustakaan
-                @elseif(Request::is('peminjaman*')) 
-                    Peminjaman Saya
-                @elseif(Request::is('history*')) 
-                    Riwayat Peminjaman
                 @else 
                     @php 
                         $lastSegment = end($segments);
@@ -66,10 +69,13 @@
         </div>
 
         <div class="d-flex align-items-center gap-3">
-            {{-- Info User (Gue balikin ke .name biar muncul bang) --}}
+            {{-- Info User --}}
             <div class="d-flex flex-column align-items-end me-1">
                 <span class="text-sm font-weight-bold text-dark">{{ Auth::user()->name }}</span>
-                <span class="text-xs text-secondary">{{ ucfirst(Auth::user()->role) }}</span>
+                {{-- Badge Role: Merah jika kepala, biru (primary) jika selain itu --}}
+                <span class="text-xs {{ Auth::user()->role == 'kepala' ? 'text-danger' : 'text-primary' }} font-weight-bold" style="font-size: 10px !important;">
+                    {{ Auth::user()->role == 'kepala' ? 'KEPALA PERPUSTAKAAN' : ucfirst(Auth::user()->role) }}
+                </span>
             </div>
 
             {{-- Icon Profil --}}
@@ -80,7 +86,7 @@
                 </div>
             </a>
 
-            {{-- Tombol Logout (Hanya Logo) --}}
+            {{-- Tombol Logout --}}
             <form action="{{ route('logout') }}" method="POST" class="m-0">
                 @csrf
                 <button type="submit" class="btn btn-link text-danger p-0 m-0 shadow-none" title="Logout">

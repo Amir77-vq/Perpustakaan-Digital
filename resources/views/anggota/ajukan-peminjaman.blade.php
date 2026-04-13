@@ -2,10 +2,20 @@
 
 @push('styles')
     <link href="{{ asset('assets/css/style-ajukan-peminjaman.css') }}?v={{ time() }}" rel="stylesheet">
+    <style>
+        /* Samakan persis dengan Detail Buku: Hapus shadow total saat diklik/hover/focus */
+        .btn-no-bias:focus, 
+        .btn-no-bias:active, 
+        .btn-no-bias:hover,
+        .btn-no-bias.active {
+            box-shadow: none !important;
+            outline: none !important;
+            opacity: 0.85; /* Memberi sedikit feedback visual tanpa bias warna */
+        }
+    </style>
 @endpush
 
 @section('content')
-    {{-- ID ini buat nahan biar CSS birunya gak bocor ke Navbar --}}
     <div class="container-fluid pt-0 py-4" id="peminjaman-page">
         <h3 class="font-weight-bold text-dark" style="font-size: 1.5rem; margin-top: -20px; margin-bottom: 30px;">
             Ajukan Peminjaman
@@ -24,14 +34,12 @@
                         <div class="row mt-1">
                             <div class="col-lg-3 col-md-4 mb-4 text-center">
                                 <div class="book-cover-preview">
-                                    {{-- PERBAIKAN: Menggunakan helper storage --}}
                                     @if($book->cover)
-                                        <img src="{{ asset('storage/' . $book->cover) }}" 
-                                             class="img-fluid" 
-                                             style="border-radius: 0.75rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1); aspect-ratio: 3/4; object-fit: cover;">
+                                        <img src="{{ asset('storage/cover/' . $book->cover) }}"
+                                            class="img-fluid shadow-lg" 
+                                            style="border-radius: 0.75rem; aspect-ratio: 3/4; object-fit: cover; width: 100%;">
                                     @else
-                                        {{-- Tampilan Cadangan dengan Gradasi Biru agar Senada --}}
-                                        <div class="no-cover d-flex align-items-center justify-content-center text-white"
+                                        <div class="no-cover d-flex align-items-center justify-content-center text-white shadow-lg"
                                                 style="width: 100%; aspect-ratio: 3/4; background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%); border-radius: 0.75rem;">
                                                 <i class="fas fa-book fa-4x"></i>
                                         </div>
@@ -41,9 +49,11 @@
 
                             <div class="col-lg-9 col-md-8 ps-lg-5">
                                 <h4 class="text-dark font-weight-bolder mb-1" style="font-size: 1.6rem;">{{ $book->judul }}</h4>
-                                <p class="text-xs text-muted mb-3">Penulis : <span class="text-dark font-weight-bold">{{ $book->penulis }}</span></p>
-
-                                <hr class="horizontal-custom my-4" style="border-top: 1px solid #f0f2f5;">
+                                
+                                {{-- Line disamakan dengan contoh Detail Buku (Padding bottom 3) --}}
+                                <div class="pb-3 mb-4" style="border-bottom: 2px solid #ebeef2;">
+                                    <p class="text-xs text-muted mb-0">Penulis : <span class="text-dark font-weight-bold">{{ $book->penulis }}</span></p>
+                                </div>
 
                                 <form action="{{ route('peminjaman.store') }}" method="POST">
                                     @csrf
@@ -55,27 +65,26 @@
                                             <input type="date" name="tgl_pinjam" class="form-control border p-2 w-100"
                                                     value="{{ date('Y-m-d') }}" readonly required 
                                                     style="background-color: #f8f9fa; border-radius: 6px;">
-                                            <small class="text-muted text-xs">* Tanggal pinjam otomatis hari ini</small>
                                         </div>
                                         <div class="col-12 mb-4">
-                                            <label class="label-custom-small" style="font-weight: 700; color: #344767;">Tanggal Kembali (Jatuh Tempo)</label>
+                                            <label class="label-custom-small" style="font-weight: 700; color: #344767;">Tanggal Kembali</label>
                                             <input type="date" name="jatuh_tempo" class="form-control border p-2 w-100"
                                                     value="{{ date('Y-m-d', strtotime('+7 days')) }}" required
                                                     style="border-radius: 6px;">
-                                            <small class="text-muted text-xs">* Standar peminjaman adalah 7 hari</small>
                                         </div>
                                     </div>
 
-                                    <div class="d-flex gap-2">
-                                        <button type="submit" class="btn btn-primary mb-0"
+                                    {{-- Container Tombol - Shadow dihapus total persis Detail Buku --}}
+                                    <div class="d-flex gap-2 mt-2">
+                                        <button type="submit" class="btn btn-primary mb-0 shadow-none btn-no-bias"
                                                 {{ $book->stok > 0 ? '' : 'disabled' }}
-                                                style="background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%); border-radius: 6px; padding: 12px 30px; font-size: 0.8rem; border: none; font-weight: 700;">
+                                                style="background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%); border-radius: 8px; padding: 12px 30px; font-size: 0.8rem; border: none; font-weight: 700; box-shadow: none !important;">
                                             {{ $book->stok > 0 ? 'KONFIRMASI PINJAM' : 'STOK HABIS' }}
                                         </button>
 
                                         <a href="{{ route('buku.show', ['id' => $book->id, 'from' => $dari ?? 'katalog']) }}"
-                                            class="btn btn-outline-secondary mb-0"
-                                            style="border-radius: 6px; padding: 12px 30px; font-size: 0.8rem; font-weight: 700; border: 1px solid #d2d6da; color: #344767;">
+                                            class="btn btn-outline-secondary mb-0 shadow-none btn-no-bias"
+                                            style="border-radius: 8px; padding: 12px 30px; font-size: 0.8rem; font-weight: 700; border: 1.5px solid #d2d6da; color: #344767; background: transparent; box-shadow: none !important;">
                                             BATAL
                                         </a>
                                     </div>

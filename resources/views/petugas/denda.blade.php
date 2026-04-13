@@ -20,7 +20,8 @@
                     <div class="mx-3 position-relative z-index-2">
                         <div class="px-4 d-flex align-items-center justify-content-between"
                             style="background: linear-gradient(310deg, #2152ff, #21d4fd); border-radius: 10px; min-height: 75px; margin-top: -25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-                            <h6 class="text-white mb-0 font-weight-bold" style="letter-spacing: 0.5px;">Denda</h6>
+                            <h6 class="text-white mb-0 font-weight-bold" style="letter-spacing: 0.5px;">Manajemen Denda
+                                Anggota</h6>
                         </div>
                     </div>
 
@@ -32,10 +33,14 @@
                                         <th class="text-uppercase text-xxs font-weight-bolder ps-4 py-3">ID</th>
                                         <th class="text-uppercase text-xxs font-weight-bolder ps-2 py-3">NAMA ANGGOTA</th>
                                         <th class="text-uppercase text-xxs font-weight-bolder ps-2 py-3">JUDUL BUKU</th>
-                                        <th class="text-uppercase text-xxs font-weight-bolder ps-2 py-3 text-center">JATUH TEMPO</th>
-                                        <th class="text-uppercase text-xxs font-weight-bolder ps-2 py-3 text-center">TANGGAL KEMBALI</th>
-                                        <th class="text-uppercase text-xxs font-weight-bolder ps-2 py-3 text-center">TERLAMBAT</th>
-                                        <th class="text-uppercase text-xxs font-weight-bolder ps-2 py-3 text-center">DENDA</th>
+                                        <th class="text-uppercase text-xxs font-weight-bolder ps-2 py-3 text-center">JATUH
+                                            TEMPO</th>
+                                        <th class="text-uppercase text-xxs font-weight-bolder ps-2 py-3 text-center">TANGGAL
+                                            KEMBALI</th>
+                                        <th class="text-uppercase text-xxs font-weight-bolder ps-2 py-3 text-center">
+                                            TERLAMBAT</th>
+                                        <th class="text-uppercase text-xxs font-weight-bolder ps-2 py-3 text-center">DENDA
+                                        </th>
                                         <th class="text-center text-uppercase text-xxs font-weight-bolder py-3">AKSI</th>
                                     </tr>
                                 </thead>
@@ -68,33 +73,33 @@
                                                 </span>
                                             </td>
                                             <td class="text-center">
-                                                @php
-                                                    $jatuhTempo = \Carbon\Carbon::parse($item->jatuh_tempo);
-                                                    $kembaliAsli = $item->tgl_kembali ? \Carbon\Carbon::parse($item->tgl_kembali) : now();
-                                                    $selisih = $jatuhTempo->diffInDays($kembaliAsli, false);
-                                                @endphp
-                                                <span class="text-xs {{ $selisih > 0 ? 'text-danger font-weight-bold' : 'text-secondary' }}">
-                                                    {{ $selisih > 0 ? $selisih . ' Hari' : '-' }}
+                                                <span
+                                                    class="text-xs {{ $item->denda > 0 ? 'text-danger font-weight-bold' : 'text-secondary' }}">
+                                                    {{ (int) ($item->terlambat ?? 0) }} Hari
                                                 </span>
                                             </td>
                                             <td class="text-center">
-                                                <span class="text-xs font-weight-bold {{ $item->denda > 0 ? 'text-dark' : 'text-secondary' }}">
-                                                    {{ $item->denda > 0 ? 'Rp ' . number_format($item->denda, 0, ',', '.') : '-' }}
+                                                <span
+                                                    class="text-xs font-weight-bold {{ $item->denda != 0 ? 'text-dark' : 'text-secondary' }}">
+                                                    {{ $item->denda != 0 ? 'Rp ' . number_format(abs($item->denda), 0, ',', '.') : '-' }}
                                                 </span>
                                             </td>
                                             <td class="align-middle text-center">
-                                                @if($item->denda > 0 && strtoupper($item->status) != 'LUNAS')
-                                                    <form action="{{ route('peminjaman.konfirmasi', $item->id) }}" method="POST" style="display:inline;">
+                                                @if($item->denda != 0 && ($item->status != 'dikembalikan' && $item->status != 'kembali'))
+                                                    {{-- SESUAIKAN NAMA ROUTE DENGAN WEB.PHP LU --}}
+                                                    <form action="{{ route('petugas.konfirmasi_lunas', $item->id) }}" method="POST"
+                                                        style="display:inline;">
                                                         @csrf
                                                         <button type="submit" class="btn btn-xs mb-0 px-3 py-1 text-white"
-                                                            style="background-color: #2152ff; font-size: 10px; border-radius: 5px; font-weight: 700; border: none; text-transform: uppercase;">
-                                                            KONFIRMASI DENDA
+                                                            onclick="return confirm('Konfirmasi pelunasan denda Rp {{ number_format(abs($item->denda), 0, ',', '.') }}?')"
+                                                            style="background-color: #d81b60; font-size: 10px; border-radius: 5px; font-weight: 700; border: none; text-transform: uppercase; cursor: pointer;">
+                                                            KONFIRMASI LUNAS
                                                         </button>
                                                     </form>
-                                                @elseif(strtoupper($item->status) == 'LUNAS')
-                                                    <span class="text-success text-xs font-weight-bold">LUNAS</span>
                                                 @else
-                                                    <span class="text-secondary text-xs">-</span>
+                                                    <span class="badge badge-sm"
+                                                        style="background-color: #2dce89; color: #fff; font-size: 9px; padding: 5px 10px;">LUNAS
+                                                        / SELESAI</span>
                                                 @endif
                                             </td>
                                         </tr>

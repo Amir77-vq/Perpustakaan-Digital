@@ -21,7 +21,6 @@
                 </div>
 
                 <div class="card-body pt-5 pb-4 px-5">
-                    {{-- Form Upload Buku --}}
                     <form action="{{ route('buku.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         
@@ -61,21 +60,20 @@
                             </div>
                         </div>
 
-                        {{-- Baris Cover Buku (Menggunakan Class CSS Eksternal) --}}
+                        {{-- Baris Cover --}}
                         <div class="row mb-5 align-items-center">
                             <div class="col-auto" style="min-width: 120px;">
                                 <label class="font-weight-bold text-dark mb-0" style="font-size: 14px;">Cover Buku</label>
                             </div>
                             <div class="col">
-                                <input type="file" name="cover" class="form-control custom-file-input" 
-                                    style="border: 1px solid #d2d6da; border-radius: 5px;">
+                                <input type="file" name="cover" class="form-control" 
+                                    style="border: 1px solid #d2d6da; border-radius: 5px; padding: 8px;">
                                 <small class="text-muted" style="font-size: 11px;">*Format: JPG, PNG, JPEG (Maks 2MB)</small>
                             </div>
                         </div>
 
                         <hr class="horizontal dark mt-0 mb-4">
 
-                        {{-- Tombol Navigasi --}}
                         <div class="d-flex justify-content-end gap-2">
                             <a href="{{ route('petugas.buku') }}" class="btn btn-sm mb-0 px-4 py-2" 
                                 style="border: 1px solid #344767; color: #344767; background: transparent; border-radius: 8px; font-weight: bold; text-transform: none;">

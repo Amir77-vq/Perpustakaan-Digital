@@ -66,10 +66,8 @@
                             <tr class="text-muted">
                                 <th class="text-uppercase text-xxs font-weight-bolder opacity-7 ps-4">NO</th>
                                 <th class="text-uppercase text-xxs font-weight-bolder opacity-7">JUDUL BUKU</th>
-                                <th class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">TANGGAL PINJAM
-                                </th>
-                                <th class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">TANGGAL KEMBALI
-                                </th>
+                                <th class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">TANGGAL PINJAM</th>
+                                <th class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">TANGGAL KEMBALI</th>
                                 <th class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">STATUS</th>
                                 <th class="text-center text-uppercase text-xxs font-weight-bolder opacity-7">DENDA</th>
                             </tr>
@@ -107,14 +105,14 @@
                                     </td>
                                     <td class="align-middle text-center">
                                         <span class="{{ $item->denda > 0 ? 'text-danger' : 'text-dark' }} font-weight-bold">
-                                            Rp {{ number_format($item->denda ?? 0, 0, ',', '.') }}
+                                            Rp {{ number_format(abs($item->denda), 0, ',', '.') }}
                                         </span>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
                                     <td colspan="6" class="text-center py-5">
-                                        <p class="text-muted mb-0">Wah, sepertinya Anda tidak punya pinjaman aktif.</p>
+                                        <p class="text-muted mb-0">Wah, sepertinya Anda tidak punya riwayat pinjaman.</p>
                                     </td>
                                 </tr>
                             @endforelse

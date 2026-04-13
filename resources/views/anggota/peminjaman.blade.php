@@ -71,17 +71,18 @@
                                 {{ \Carbon\Carbon::parse($item->jatuh_tempo)->format('d/m/y') }}
                             </td>
                             <td class="align-middle text-center">
-                                {{-- Teks dirubah jadi PENDING sesuai perintah --}}
-                                @if($item->status == 'MENUNGGU' || $item->status == 'PENDING')
-                                    <span class="badge-status bg-waiting shadow-sm">PENDING</span>
-                                @elseif($item->status == 'DI SETUJUI' || $item->status == 'DIPINJAM')
-                                    <span class="badge-status bg-approved shadow-sm">DI SETUJUI</span>
-                                @elseif($item->status == 'DI TOLAK')
-                                    <span class="badge-status bg-rejected shadow-sm">DI TOLAK</span>
-                                @else
-                                    <span class="badge-status bg-secondary shadow-sm">{{ $item->status }}</span>
-                                @endif
-                            </td>
+    @if($item->status == 'PENDING')
+        <span class="badge-status bg-waiting shadow-sm">PENDING</span>
+    @elseif($item->status == 'WAITING')
+        <span class="badge-status bg-waiting shadow-sm">WAITING</span>
+    @elseif($item->status == 'DI SETUJUI' || $item->status == 'DIPINJAM')
+        <span class="badge-status bg-approved shadow-sm">DI SETUJUI</span>
+    @elseif($item->status == 'DI TOLAK')
+        <span class="badge-status bg-rejected shadow-sm">DI TOLAK</span>
+    @else
+        <span class="badge-status bg-secondary shadow-sm">{{ $item->status }}</span>
+    @endif
+</td>
                         </tr>
                         @empty
                         <tr>

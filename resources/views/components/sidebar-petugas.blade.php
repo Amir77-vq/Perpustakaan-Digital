@@ -41,18 +41,6 @@
         </a>
       </li>
 
-      {{-- Data Anggota --}}
-      <li class="nav-item">
-        <a class="nav-link text-white {{ Request::is('petugas/anggota*') ? 'active bg-gradient-primary' : '' }}"
-          style="{{ Request::is('petugas/anggota*') ? 'border-radius: 8px !important;' : '' }}"
-          href="{{ route('petugas.anggota') }}">
-          <div class="text-center me-2 d-flex align-items-center justify-content-center">
-            <i class="material-icons opacity-10">groups</i>
-          </div>
-          <span class="nav-link-text ms-1">Data Anggota</span>
-        </a>
-      </li>
-
       {{-- Peminjaman --}}
       <li class="nav-item">
         <a class="nav-link text-white {{ Request::is('peminjaman-petugas*') ? 'active bg-gradient-primary' : '' }}"
@@ -65,7 +53,7 @@
         </a>
       </li>
 
-      {{-- Pengembalian (FIXED: Route & Active State) --}}
+      {{-- Pengembalian --}}
       <li class="nav-item">
         <a class="nav-link text-white {{ Request::is('pengembalian-petugas*') ? 'active bg-gradient-primary' : '' }}"
           style="{{ Request::is('pengembalian-petugas*') ? 'border-radius: 8px !important;' : '' }}"

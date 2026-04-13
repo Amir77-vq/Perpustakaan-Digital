@@ -29,12 +29,7 @@
         {{-- Form Edit Profil --}}
         <div class="col-lg-8">
             @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show text-white text-sm mb-3" role="alert" style="border-radius: 8px;">
-                    <span class="alert-text"><strong>Berhasil!</strong> {{ session('success') }}</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
+                
             @endif
 
             <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">

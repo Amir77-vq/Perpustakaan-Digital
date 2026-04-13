@@ -35,15 +35,15 @@
                             <div class="d-flex gap-3 mb-3">
                                 <div class="book-cover-wrapper" style="width: 89px; height: 115px; flex-shrink: 0;">
                                     @if($book->cover)
-                                        <img src="{{ asset('storage/' . $book->cover) }}" class="w-100 h-100 shadow-sm"
-                                            style="object-fit: cover; border-radius: 8px;" 
+                                        <img src="{{ asset('storage/cover/' . $book->cover) }}" class="w-100 h-100 shadow-sm"
+                                            style="object-fit: cover; border-radius: 8px;"
                                             onerror="this.onerror=null;this.src='{{ asset('assets/img/no-cover.png') }}';">
                                     @else
-                                        <div class="w-100 h-100 shadow-sm d-flex align-items-center justify-content-center"
-                                            style="background: linear-gradient(310deg, #2152ff, #21d4fd); border-radius: 8px;">
-                                            <i class="fas fa-book text-white"></i>
-                                        </div>
-                                    @endif
+                                            <div class="w-100 h-100 shadow-sm d-flex align-items-center justify-content-center"
+                                                style="background: linear-gradient(310deg, #2152ff, #21d4fd); border-radius: 8px;">
+                                                <i class="fas fa-book text-white"></i>
+                                            </div>
+                                        @endif
                                 </div>
                                 <div class="book-title-info overflow-hidden">
                                     <h6 class="text-sm font-weight-bold mb-1 text-dark text-truncate judul-buku">
@@ -58,7 +58,8 @@
                                     <span class="status-indicator"
                                         style="width: 8px; height: 8px; border-radius: 50%; display: inline-block; background-color: {{ $book->stok > 0 ? '#4caf50' : '#f44336' }};"></span>
                                     <div class="ms-2">
-                                        <p class="text-xs mb-0 font-weight-bold {{ $book->stok > 0 ? 'text-success' : 'text-danger' }}">
+                                        <p
+                                            class="text-xs mb-0 font-weight-bold {{ $book->stok > 0 ? 'text-success' : 'text-danger' }}">
                                             {{ $book->stok > 0 ? 'Tersedia' : 'Habis' }}
                                         </p>
                                         @if($book->stok > 0)

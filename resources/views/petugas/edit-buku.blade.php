@@ -79,7 +79,7 @@
                     <label class="font-weight-bold text-dark text-sm d-block mb-3">Cover Saat Ini</label>
                     <div class="preview-container mb-3">
                         @if($buku->cover)
-                            <img id="image-preview" src="{{ asset('storage/covers/' . $buku->cover) }}" 
+                            <img id="image-preview" src="{{ asset('storage/cover/' . $book->cover) }}" 
                                   class="rounded shadow border" 
                                   style="width: 150px; height: 210px; object-fit: cover;">
                         @else

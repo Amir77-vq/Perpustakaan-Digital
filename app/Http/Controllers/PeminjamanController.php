@@ -3,23 +3,21 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Peminjaman; 
+use App\Models\Peminjaman;
 use App\Models\Buku;
-use App\Models\Pengembalian; // Tambahkan ini agar sinkron
-use Carbon\Carbon;           
-use Illuminate\Support\Facades\Auth; 
+use App\Models\Pengembalian; 
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class PeminjamanController extends Controller
 {
-    /**
-     * Menampilkan daftar pinjaman aktif milik anggota
-     */
+
     public function index(Request $request)
     {
         $search = $request->get('search');
-        
+
         $peminjamans = Peminjaman::where('user_id', Auth::id())
-            ->whereIn('status', ['PENDING', 'DIPINJAM', 'DI SETUJUI']) // Tambahkan DI SETUJUI agar muncul
+            ->whereIn('status', ['PENDING', 'DIPINJAM', 'DI SETUJUI', 'WAITING'])
             ->when($search, function ($query) use ($search) {
                 return $query->where('judul_buku', 'LIKE', "%{$search}%");
             })
@@ -29,9 +27,6 @@ class PeminjamanController extends Controller
         return view('anggota.peminjaman', compact('peminjamans'));
     }
 
-    /**
-     * Menampilkan seluruh riwayat peminjaman anggota
-     */
     public function history(Request $request)
     {
         $search = $request->get('search');
@@ -40,7 +35,7 @@ class PeminjamanController extends Controller
             ->when($search, function ($query) use ($search) {
                 return $query->where('judul_buku', 'LIKE', "%{$search}%");
             })
-            ->orderBy('created_at', 'desc') 
+            ->orderBy('created_at', 'desc')
             ->get();
 
         $totalDenda = $peminjamans->sum('denda');
@@ -48,54 +43,47 @@ class PeminjamanController extends Controller
         return view('anggota.history', compact('peminjamans', 'totalDenda'));
     }
 
-    /**
-     * Proses pengembalian buku oleh anggota
-     */
-    public function prosesPengembalian($id)
-    {
-        $peminjaman = Peminjaman::findOrFail($id);
-        
-        $tgl_sekarang = Carbon::now();
-        $jatuh_tempo = Carbon::parse($peminjaman->jatuh_tempo);
-        $denda = 0;
+public function prosesPengembalian($id)
+{
+    $peminjaman = Peminjaman::findOrFail($id);
+    
+    // Pake startOfDay biar hitungan harinya presisi (nggak hitung jam)
+    $tgl_sekarang = Carbon::now()->startOfDay();
+    $jatuh_tempo = Carbon::parse($peminjaman->jatuh_tempo)->startOfDay();
+    $denda = 0;
+    $terlambat = 0;
 
-        // Hitung denda jika terlambat
-        if ($tgl_sekarang->gt($jatuh_tempo)) {
-            $selisih = $tgl_sekarang->diffInDays($jatuh_tempo);
-            $denda = $selisih * 2000;
-        }
-
-        // 1. Update status di tabel peminjamans
-        $peminjaman->update([
-            'status' => 'DIKEMBALIKAN', // Samakan dengan PengembalianController
-            'tgl_kembali' => $tgl_sekarang->format('Y-m-d'),
-            'denda' => $denda
-        ]);
-
-        // 2. Simpan ke tabel pengembalians agar di phpMyAdmin terisi
-        Pengembalian::create([
-            'peminjaman_id' => $peminjaman->id,
-            'user_id'       => Auth::id(),
-            'tgl_kembali'   => $tgl_sekarang->format('Y-m-d'),
-            'denda'         => $denda,
-        ]);
-
-        // 3. Kembalikan stok buku
-        $buku = Buku::find($peminjaman->buku_id);
-        if ($buku) {
-            $buku->increment('stok');
-        }
-
-        return redirect()->route('peminjaman.history')->with('success', 'Buku berhasil dikembalikan!');
+    if ($tgl_sekarang->gt($jatuh_tempo)) {
+        $terlambat = $tgl_sekarang->diffInDays($jatuh_tempo);
+        $denda = $terlambat * 2000;
     }
 
-    /**
-     * Menyimpan data peminjaman baru
-     */
+    // Update di tabel peminjaman
+    $peminjaman->update([
+        'status' => 'WAITING',
+        'tgl_kembali' => $tgl_sekarang->toDateString(), 
+        'terlambat' => $terlambat,
+        'denda' => $denda
+    ]);
+
+    // Update atau buat di tabel pengembalian (sesuaikan kolom migration)
+    Pengembalian::updateOrCreate(
+        ['peminjaman_id' => $peminjaman->id],
+        [
+            'tanggal_kembali' => $tgl_sekarang->toDateString(),
+            'terlambat' => $terlambat,
+            'denda' => $denda,
+            'status' => 0 // Masih pending konfirmasi petugas
+        ]
+    );
+
+    return redirect()->route('peminjaman.index')->with('success', 'Permintaan pengembalian dikirim!');
+}
+
     public function store(Request $request)
     {
         $request->validate([
-            'id_buku' => 'required|exists:bukus,id' 
+            'id_buku' => 'required|exists:bukus,id'
         ]);
 
         $sudahPinjam = Peminjaman::where('user_id', Auth::id())
@@ -114,12 +102,14 @@ class PeminjamanController extends Controller
         }
 
         Peminjaman::create([
-            'user_id'     => Auth::id(),
-            'buku_id'     => $buku->id,
-            'judul_buku'  => $buku->judul, 
-            'tgl_pinjam'  => Carbon::now()->format('Y-m-d'),
-            'jatuh_tempo' => Carbon::now()->addDays(7)->format('Y-m-d'),
-            'status'      => 'PENDING', 
+            'user_id' => Auth::id(),
+            'buku_id' => $buku->id,
+            'judul_buku' => $buku->judul,
+            // 'tgl_pinjam'  => Carbon::now()->format('Y-m-d'),
+            // 'jatuh_tempo' => Carbon::now()->addDays(7)->format('Y-m-d'),
+            'tgl_pinjam' => $request->tgl_pinjam,
+            'jatuh_tempo' => $request->jatuh_tempo,
+            'status' => 'PENDING',
         ]);
 
         $buku->decrement('stok');

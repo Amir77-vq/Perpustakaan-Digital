@@ -18,8 +18,9 @@ class Peminjaman extends Model
         'tgl_pinjam',
         'jatuh_tempo',
         'tgl_kembali', 
-        'denda',      
-        'status',
+        'status',      
+        'denda',
+        'terlambat',
     ];
 
     public $timestamps = true;

@@ -8,8 +8,9 @@ use App\Models\User;
 use App\Models\Peminjaman;
 use App\Models\Pengembalian;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class PetugasController extends Controller
 {
@@ -20,16 +21,12 @@ class PetugasController extends Controller
     {
         $totalBuku = Buku::count();
         $totalAnggota = User::where('role', 'anggota')->count();
-        $peminjamanAktif = Peminjaman::where('status', 'dipinjam')->count();
-        $dendaBelumDibayar = Peminjaman::where('status', 'belum_bayar')->sum('denda');
+        $peminjamanAktif = Peminjaman::where('status', 'DIPINJAM')->count();
+        $dendaBelumDibayar = Peminjaman::where('denda', '!=', 0)->get()->sum(function ($item) {
+            return abs($item->denda);
+        });
 
-        $peminjaman = Peminjaman::select('id', 'user_id', 'buku_id', 'status', 'created_at')
-            ->with(['user', 'buku']);
-
-        $recentActivities = Peminjaman::with(['user', 'buku'])
-            ->latest()
-            ->limit(10) 
-            ->get();
+        $recentActivities = Peminjaman::with(['user', 'buku'])->latest()->limit(10)->get();
 
         return view('petugas.dashboard', compact(
             'totalBuku',
@@ -40,81 +37,106 @@ class PetugasController extends Controller
         ));
     }
 
-    /**
-     * Manajemen Peminjaman
-     */
     public function peminjaman()
     {
-        $peminjamans = Peminjaman::with(['user', 'buku'])->latest()->get();
+        $peminjamans = Peminjaman::with(['user', 'buku'])
+            ->whereIn('status', ['PENDING', 'DIPINJAM', 'WAITING'])
+            ->latest()
+            ->get();
+
         return view('petugas.peminjaman', compact('peminjamans'));
     }
 
-    /**
-     * Proses Konfirmasi Peminjaman
-     */
     public function konfirmasiPeminjaman($id)
     {
         $peminjaman = Peminjaman::findOrFail($id);
+
+        if ($peminjaman->status === 'DIPINJAM') {
+            return redirect()->back()->with('error', 'Peminjaman ini sudah dikonfirmasi.');
+        }
 
         $peminjaman->update([
             'status' => 'DIPINJAM'
         ]);
 
-        return redirect()->back()->with('success', 'Peminjaman dikonfirmasi!');
+        return redirect()->back()->with('success', 'Peminjaman berhasil dikonfirmasi!');
     }
 
-    /**
-     * Manajemen Pengembalian 
-     */
+    // Fungsi buat nampilin daftar pengembalian (Halaman yang tadi Error 500)
     public function pengembalian()
     {
-        $pengembalians = Pengembalian::with(['peminjaman.user', 'peminjaman.buku'])->latest()->get();
+        $pengembalians = Peminjaman::with(['user', 'buku'])
+            ->whereIn('status', ['WAITING', 'DIKEMBALIKAN', 'TERLAMBAT', 'DENDA'])
+            ->latest('updated_at')
+            ->get();
+
         return view('petugas.pengembalian', compact('pengembalians'));
     }
 
-    /**
-     * Proses Konfirmasi Pengembalian
-     */
-
+    // Fungsi konfirmasi pengembalian
     public function konfirmasiPengembalian($id)
     {
-        // 1. Ambil data pengembalian
-        $pengembalian = Pengembalian::with('peminjaman')->findOrFail($id);
-        $jatuhTempo = Carbon::parse($pengembalian->peminjaman->jatuh_tempo);
-        $tglKembali = Carbon::now();
+        $peminjaman = Peminjaman::findOrFail($id);
 
-        $terlambat = 0;
-        $denda = 0;
+        // Ambil data yang sudah dihitung (walaupun minus di DB lu sekarang)
+        $denda = $peminjaman->denda;
+        $terlambat = $peminjaman->terlambat;
+        $tglKembali = $peminjaman->tgl_kembali ?? date('Y-m-d');
 
-        if ($tglKembali->gt($jatuhTempo)) {
-            $terlambat = $tglKembali->diffInDays($jatuhTempo);
-            $denda = $terlambat * 2000;
+        DB::beginTransaction();
+        try {
+            Pengembalian::updateOrCreate(
+                ['peminjaman_id' => $id],
+                [
+                    'tanggal_kembali' => $tglKembali,
+                    'terlambat' => $terlambat,
+                    'denda' => $denda,
+                    'status' => 1
+                ]
+            );
+
+            $statusBaru = ($denda != 0) ? 'TERLAMBAT' : 'DIKEMBALIKAN';
+
+            $peminjaman->update([
+                'status' => $statusBaru,
+                'denda' => $denda,
+                'terlambat' => $terlambat
+            ]);
+
+            if ($peminjaman->buku) {
+                $peminjaman->buku->increment('stok');
+            }
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Berhasil konfirmasi pengembalian!');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
         }
-
-        // 2. Update tabel pengembalian
-        $pengembalian->update([
-            'tanggal_kembali' => $tglKembali->format('Y-m-d'),
-            'terlambat' => $terlambat,
-            'denda' => $denda,
-            'status' => 1 
-        ]);
-
-        // 3. Update tabel peminjaman
-        $pengembalian->peminjaman->update([
-            'status' => 'DIKEMBALIKAN',
-            'denda' => $denda, // Sync denda terakhir
-            'tanggal_pengembalian' => $tglKembali // Catat tanggal baliknya
-        ]);
-        
-        // 4. Tambah stok buku kembali karena buku sudah balik
-        $pengembalian->peminjaman->buku->increment('stok');
-
-        return redirect()->back()->with('success', 'Pengembalian dikonfirmasi dan status buku diperbarui!');
     }
 
-    /**
-     * Manajemen Buku
-     */
+    public function denda()
+    {
+
+        $peminjamans = Peminjaman::with(['user', 'buku'])
+            ->where('denda', '!=', 0)
+            ->latest()
+            ->get();
+
+        return view('petugas.denda', compact('peminjamans'));
+    }
+
+    public function konfirmasiLunas($id)
+    {
+        $item = Peminjaman::findOrFail($id);
+        $item->update([
+            'status' => 'DIKEMBALIKAN',
+            'denda' => 0,
+            'terlambat' => 0
+        ]);
+        return redirect()->back()->with('success', 'Pembayaran denda berhasil dikonfirmasi!');
+    }
+
     public function buku()
     {
         $bukus = Buku::latest()->get();
@@ -128,28 +150,22 @@ class PetugasController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'judul' => 'required',
-            'penulis' => 'required',
-            'stok' => 'required|numeric',
-            'cover' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ], [
-            'required' => 'Mohon lengkapi data ini.'
-        ]);
-
         $data = $request->all();
 
         if ($request->hasFile('cover')) {
             $file = $request->file('cover');
-            $namaFile = time() . '_' . $file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName();
 
-            $file->storeAs('public/covers', $namaFile);
-
-            $data['cover'] = $namaFile;
+            // Simpan file
+            $file->storeAs('cover', $filename, 'public');
+            $data['cover'] = $filename;
         }
 
-        Buku::create($data);
-        return redirect()->route('petugas.buku')->with('success', 'Data buku ditambahkan!');
+        // Simpan ke Database
+        \App\Models\Buku::create($data);
+
+        // PAKSA REDIRECT PAKAI URL ASLI, JANGAN PAKE ROUTE NAME
+        return redirect()->route('petugas.buku')->with('success', 'Buku berhasil ditambah!');
     }
 
     public function edit($id)
@@ -160,152 +176,27 @@ class PetugasController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'judul' => 'required',
-            'penulis' => 'required',
-            'stok' => 'required|numeric',
-            'cover' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ], [
-            'required' => 'Mohon lengkapi data ini.'
-        ]);
-
         $buku = Buku::findOrFail($id);
         $data = $request->all();
-
         if ($request->hasFile('cover')) {
             if ($buku->cover) {
-                Storage::delete('public/covers/' . $buku->cover);
+                Storage::disk('public')->delete('cover/' . $buku->cover);
             }
-
-            $file = $request->file('cover');
-            $namaFile = time() . '_' . $file->getClientOriginalName();
-
-            $file->storeAs('public/covers', $namaFile);
-
-            $data['cover'] = $namaFile;
+            $filename = time() . '_' . $request->file('cover')->getClientOriginalName();
+            $request->file('cover')->storeAs('cover', $filename, 'public');
+            $data['cover'] = $filename;
         }
-
         $buku->update($data);
-        return redirect()->route('petugas.buku')->with('success', 'Data buku diperbarui!');
+        return redirect()->route('petugas.buku')->with('success', 'Buku diperbarui!');
     }
 
     public function destroy($id)
     {
         $buku = Buku::findOrFail($id);
-
         if ($buku->cover) {
-            Storage::delete('public/covers/' . $buku->cover);
+            Storage::disk('public')->delete('cover/' . $buku->cover);
         }
-
         $buku->delete();
-        return redirect()->back()->with('success', 'Buku berhasil dihapus!');
-    }
-
-    /**
-     * Manajemen Anggota
-     */
-    public function anggota()
-    {
-        $anggotas = User::where('role', 'anggota')->latest()->get();
-        return view('petugas.anggota', compact('anggotas'));
-    }
-
-    public function anggotaCreate()
-    {
-        return view('petugas.create-anggota');
-    }
-
-    public function anggotaStore(Request $request)
-    {
-        $request->validate([
-            'name' => 'required',
-            'alamat' => 'required',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
-            'no_hp' => 'required|numeric|starts_with:08|digits_between:10,13',
-        ], [
-            'required' => 'Mohon lengkapi data ini.',
-            'min' => 'Password minimal 6 karakter.',
-            'no_hp.numeric' => 'Nomor HP harus berupa angka.',
-            'no_hp.starts_with' => 'Nomor HP harus diawali dengan 08.',
-            'no_hp.digits_between' => 'Nomor HP harus 10-13 digit.',
-        ]);
-
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'anggota',
-            'alamat' => $request->alamat,
-            'no_hp' => $request->no_hp,
-        ]);
-
-        return redirect()->route('petugas.anggota')->with('success', 'Anggota ditambahkan!');
-    }
-
-    public function anggotaEdit($id)
-    {
-        $anggota = User::findOrFail($id);
-        return view('petugas.edit-anggota', compact('anggota'));
-    }
-
-    public function anggotaUpdate(Request $request, $id)
-    {
-        $user = User::findOrFail($id);
-
-        $request->validate([
-            'name' => 'required',
-            'alamat' => 'required',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'no_hp' => 'required|numeric|starts_with:08|digits_between:10,13',
-        ], [
-            'required' => 'Mohon lengkapi data ini.',
-            'no_hp.numeric' => 'Nomor HP harus berupa angka.',
-            'no_hp.starts_with' => 'Nomor HP harus diawali dengan 08.',
-            'no_hp.digits_between' => 'Nomor HP harus 10-13 digit.',
-        ]);
-
-        $data = [
-            'name' => $request->name,
-            'email' => $request->email,
-            'alamat' => $request->alamat,
-            'no_hp' => $request->no_hp,
-        ];
-
-        if ($request->password) {
-            $data['password'] = Hash::make($request->password);
-        }
-
-        $user->update($data);
-        return redirect()->route('petugas.anggota')->with('success', 'Data anggota diperbarui!');
-    }
-
-    public function anggotaDestroy($id)
-    {
-        $user = User::findOrFail($id);
-        $user->delete();
-        return redirect()->back()->with('success', 'Anggota dihapus!');
-    }
-
-    public function anggotaReset($id)
-    {
-        $user = User::findOrFail($id);
-
-        return redirect()->route('anggota.edit', $id)
-            ->with('success', 'Password berhasil di reset.')
-            ->with('reset_pass', 'perpustakaan444');
-    }
-
-    /**
-     * Menampilkan Daftar Denda Anggota
-     */
-    public function denda()
-    {
-        $peminjamans = Peminjaman::with(['user', 'buku'])
-            ->where('denda', '>', 0)
-            ->latest()
-            ->get();
-
-        return view('petugas.denda', compact('peminjamans'));
+        return redirect()->back()->with('success', 'Buku dihapus!');
     }
 }

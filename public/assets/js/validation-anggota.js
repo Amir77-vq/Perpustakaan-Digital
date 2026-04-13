@@ -1,67 +1,38 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const form = document.querySelector("form");
+    const form = document.getElementById("formUser");
     if (!form) return;
 
-    // Ambil semua input yang ada di dalam form
-    const inputs = form.querySelectorAll('input[name]');
-    const noHpInput = document.getElementById('no_hp_input');
+    const inputs = form.querySelectorAll('input[required], select[required]');
 
-    // 1. FILTER INPUT NO HP (User bener-bener gak bisa ngetik huruf/simbol)
-    if (noHpInput) {
-        noHpInput.addEventListener('input', function() {
-            // Langsung hapus kalau yang diketik bukan angka
-            this.value = this.value.replace(/[^0-9]/g, '');
-        });
-    }
-
-    // 2. FUNGSI VALIDASI UTAMA
-    const validateInput = (input) => {
-        // Cari kontainer .col terdekat agar pesan error tidak nyasar
-        const container = input.closest('.col');
-        const errorElement = container ? container.querySelector(".error-text-custom") : null;
-        
+    const validateField = (input, isSubmitAction = false) => {
+        const container = input.closest('.col-md-6');
+        const errorElement = container.querySelector(".error-text-custom");
         let isValid = true;
         let message = "";
         const val = input.value.trim();
 
-        // A. Cek Kosong
         if (!val) {
             isValid = false;
-            message = "Mohon lengkapi data ini.";
-        }
-        // B. Validasi Khusus No HP
-        else if (input.name === "no_hp") {
-            if (!val.startsWith("08")) {
-                isValid = false;
-                message = "Nomor HP harus diawali dengan 08.";
-            } else if (val.length < 10 || val.length > 13) {
-                isValid = false;
-                message = "Nomor HP harus 10-13 digit.";
-            }
-        }
-        // C. Validasi Email
-        else if (input.type === "email") {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            message = input.tagName === "SELECT" ? "Silakan pilih hak akses pengguna." : "Data ini wajib diisi.";
+        } 
+        
+        if (isValid && input.type === "email" && isSubmitAction) {
+            const emailRegex = /^[a-z0-9._-]+@[a-z0-9.-]+\.[a-z]{3,}$/;
+            
             if (!emailRegex.test(val)) {
                 isValid = false;
-                message = "Format email tidak valid.";
+                message = "Format alamat email tidak valid. Pastikan menggunakan huruf kecil dan format yang benar.";
             }
         }
-        // D. Validasi Password
-        else if (input.name === "password" && val.length < 6) {
-            isValid = false;
-            message = "Password minimal harus 6 karakter.";
-        }
 
-        // EKSEKUSI TAMPILAN ERROR
         if (!isValid) {
-            input.classList.add("is-invalid-custom");
+            input.style.borderColor = "#dc3545";
             if (errorElement) {
                 errorElement.textContent = message;
                 errorElement.style.display = "block";
             }
         } else {
-            input.classList.remove("is-invalid-custom");
+            input.style.borderColor = "#d2d6da";
             if (errorElement) {
                 errorElement.style.display = "none";
             }
@@ -69,32 +40,20 @@ document.addEventListener("DOMContentLoaded", function () {
         return isValid;
     };
 
-    // 3. JALANKAN VALIDASI SAAT USER MENGETIK
-    inputs.forEach((input) => {
-        input.addEventListener("input", () => validateInput(input));
+    inputs.forEach(input => {
+        input.addEventListener("input", () => validateField(input, false));
     });
 
-    // 4. PENGUNCI FORM (CEGAT SUBMIT)
     form.addEventListener("submit", function (e) {
         let isFormValid = true;
-        
-        // Cek semua input sekali lagi sebelum dikirim
-        inputs.forEach((input) => {
-            if (!validateInput(input)) {
+        inputs.forEach(input => {
+            if (!validateField(input, true)) {
                 isFormValid = false;
             }
         });
 
-        // JIKA ADA YANG SALAH, BATALKAN SEMUA PROSES
         if (!isFormValid) {
             e.preventDefault();
-            e.stopPropagation();
-            
-            // Fokus ke input pertama yang bermasalah
-            const firstError = form.querySelector(".is-invalid-custom");
-            if (firstError) firstError.focus();
-            
-            return false;
         }
     });
 });

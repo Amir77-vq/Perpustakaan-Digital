@@ -57,7 +57,7 @@
         </div>
         <div class="text-end ms-auto">
           <p class="text-sm mb-0 text-secondary">Total Denda</p>
-          <h4 class="mb-0 font-weight-bolder text-dark">Rp {{ number_format($totalDenda, 0, ',', '.') }}</h4>
+          <h4 class="mb-0 font-weight-bolder text-dark"> Rp {{ number_format(abs($totalDenda), 0, ',', '.') }}</h4>
         </div>
       </div>
     </div>
@@ -74,7 +74,7 @@
       <div class="card rekom-card shadow-sm" style="border-radius: 12px;">
         <div class="rekom-cover-wrapper" style="height: 245px; overflow: hidden; border-radius: 12px 12px 0 0;">
             @if($book->cover)
-                <img src="{{ asset('storage/' . $book->cover) }}" class="w-100 h-100" style="object-fit: cover;">
+                <img src="{{ asset('storage/cover/' . $book->cover) }}" class="w-100 h-100" style="object-fit: cover;">
             @else
                 <div class="w-100 h-100" style="background: #f8f9fa; display: flex; align-items: center; justify-content: center;">
                     <i class="fas fa-book text-secondary"></i>
@@ -85,7 +85,6 @@
           <h6 class="mb-0 text-sm font-weight-bold text-dark text-truncate">{{ $book->judul }}</h6>
           <p class="text-xs text-secondary mb-2 text-truncate">{{ $book->penulis }}</p>
           
-          {{-- FIX: Warna & Ukuran Tombol (Solid Status & Gradient Action) --}}
           <div class="d-flex justify-content-between align-items-center mt-3">
             <span class="d-flex align-items-center justify-content-center" 
                   style="background-color: {{ $book->stok > 0 ? '#2dce89' : '#f5365c' }}; color: #fff; width: 80px; height: 30px; border-radius: 6px; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; border: none;">
@@ -149,7 +148,8 @@
                     <td class="align-middle text-center py-2">
                       <div class="d-inline-block shadow-sm" style="width: 30px; height: 40px; background-color: #eee; border-radius: 3px; overflow: hidden;">
                         @if($loan->buku && $loan->buku->cover)
-                          <img src="{{ asset('storage/' . $loan->buku->cover) }}" class="w-100 h-100" style="object-fit: cover;">
+                          {{-- FIX: Ditambahkan /cover/ sesuai lokasi folder lu --}}
+                          <img src="{{ asset('storage/cover/' . $loan->buku->cover) }}" class="w-100 h-100" style="object-fit: cover;">
                         @else
                           <div class="w-100 h-100 d-flex align-items-center justify-content-center">
                             <i class="fas fa-book" style="font-size: 10px; color: #ccc;"></i>
