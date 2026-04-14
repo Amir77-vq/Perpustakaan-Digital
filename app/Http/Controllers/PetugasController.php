@@ -78,10 +78,9 @@ class PetugasController extends Controller
     {
         $peminjaman = Peminjaman::findOrFail($id);
 
-        // Ambil data yang sudah dihitung (walaupun minus di DB lu sekarang)
-        $denda = $peminjaman->denda;
+        $denda = abs($peminjaman->denda);
         $terlambat = $peminjaman->terlambat;
-        $tglKembali = $peminjaman->tgl_kembali ?? date('Y-m-d');
+        $tglKembali = $peminjaman->tgl_kembali;
 
         DB::beginTransaction();
         try {
@@ -108,10 +107,17 @@ class PetugasController extends Controller
             }
 
             DB::commit();
-            return redirect()->back()->with('success', 'Berhasil konfirmasi pengembalian!');
+            if ($statusBaru === 'TERLAMBAT') {
+                $pesan = "Konfirmasi berhasil! Anggota terlambat " . $terlambat . " hari. Denda: Rp " . number_format($denda, 0, ',', '.');
+            } else {
+                $pesan = "Konfirmasi berhasil! Buku dikembalikan tepat waktu.";
+            }
+
+            return redirect()->back()->with('success', $pesan);
+
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal konfirmasi: ' . $e->getMessage());
         }
     }
 

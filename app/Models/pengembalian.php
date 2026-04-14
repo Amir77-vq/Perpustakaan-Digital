@@ -25,13 +25,16 @@ class Pengembalian extends Model
         return $this->belongsTo(Peminjaman::class, 'peminjaman_id', 'id');
     }
 
-    public function user()
-{
-    return $this->peminjaman->user ?? null;
-}
+    public function getUserAttribute()
+    {
+        return $this->peminjaman->user ?? null;
+    }
 
-public function buku()
-{
-    return $this->peminjaman->buku ?? null;
-}
+    /**
+     * Mengubah method buku menjadi Accessor.
+     */
+    public function getBukuAttribute()
+    {
+        return $this->peminjaman->buku ?? null;
+    }
 }

@@ -8,7 +8,8 @@
                     <div class="mx-3 position-relative z-index-2">
                         <div class="px-4 d-flex align-items-center justify-content-between"
                             style="background: linear-gradient(310deg, #2152ff, #21d4fd); border-radius: 10px; min-height: 75px; margin-top: -25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-                            <h6 class="text-white mb-0 font-weight-bold" style="letter-spacing: 0.5px;">Rekapitulasi Laporan Denda</h6>
+                            <h6 class="text-white mb-0 font-weight-bold" style="letter-spacing: 0.5px;">Rekapitulasi Laporan
+                                Denda</h6>
                         </div>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
@@ -18,8 +19,10 @@
                                     <tr class="text-secondary opacity-7">
                                         <th class="text-uppercase text-xxs font-weight-bolder ps-4 py-3">NO</th>
                                         <th class="text-uppercase text-xxs font-weight-bolder ps-2 py-3">NAMA ANGGOTA</th>
-                                        <th class="text-uppercase text-xxs font-weight-bolder ps-2 py-3 text-center">JUMLAH DENDA</th>
-                                        <th class="text-center text-uppercase text-xxs font-weight-bolder py-3">STATUS PEMBAYARAN</th>
+                                        <th class="text-uppercase text-xxs font-weight-bolder ps-2 py-3 text-center">JUMLAH
+                                            DENDA</th>
+                                        <th class="text-center text-uppercase text-xxs font-weight-bolder py-3">STATUS
+                                            PEMBAYARAN</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -31,25 +34,25 @@
                                             </td>
                                             <td class="ps-2">
                                                 <p class="text-sm font-weight-bold mb-0">
-                                                    
                                                     <?php echo e($item->user->name ?? 'User Tidak Ditemukan'); ?>
 
                                                 </p>
                                             </td>
                                             <td class="text-center">
                                                 <span class="text-xs font-weight-bold text-dark">
-                                                    Rp <?php echo e(number_format(abs($item->denda), 0, ',', '.')); ?>
+                                                    Rp <?php echo e(number_format(abs($item->denda ?? 0), 0, ',', '.')); ?>
 
                                                 </span>
                                             </td>
                                             <td class="align-middle text-center">
-                                                
-                                                <?php if($item->status == 1 || strtoupper($item->status) === 'DIKEMBALIKAN'): ?>
+                                                <?php if($item->denda == 0): ?>
                                                     <span class="badge badge-sm"
-                                                        style="background-color: #2dce89; color: #fff; font-size: 9px; padding: 5px 10px;">LUNAS</span>
+                                                        style="background-color: #2dce89; color: #fff; font-size: 9px; padding: 5px 10px;">LUNAS
+                                                    </span>
                                                 <?php else: ?>
                                                     <span class="badge badge-sm"
-                                                        style="background-color: #f5365c; color: #fff; font-size: 9px; padding: 5px 10px;">BELUM BAYAR</span>
+                                                        style="background-color: #f5365c; color: #fff; font-size: 9px; padding: 5px 10px;">BELUM
+                                                        BAYAR (Rp <?php echo e(number_format(abs($item->denda), 0, ',', '.')); ?>)</span>
                                                 <?php endif; ?>
                                             </td>
                                         </tr>

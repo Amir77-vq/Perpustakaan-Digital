@@ -190,6 +190,7 @@ Route::middleware(['auth', 'role:kepala'])->group(function () {
     Route::put('/kepala/anggota/{id}/update', [KepalaController::class, 'anggotaUpdate'])->name('anggota.update');
     Route::delete('/kepala/anggota/{id}', [KepalaController::class, 'anggotaDestroy'])->name('anggota.destroy');
     Route::put('/kepala/anggota/{id}/reset', [PetugasController::class, 'anggotaReset'])->name('anggota.reset');
+    
     Route::get('/laporan/peminjaman', [KepalaController::class, 'laporanPeminjaman'])->name('kepala.laporan_peminjaman');
 
     Route::get('/laporan/buku', function () {
@@ -197,17 +198,7 @@ Route::middleware(['auth', 'role:kepala'])->group(function () {
         return view('kepala.laporanbuku', compact('bukus'));
     })->name('kepala.laporan_buku');
 
-    Route::get('/laporan/pengembalian', function () {
-        $pengembalians = Peminjaman::with(['user', 'buku'])
-            ->where('status', 'DIKEMBALIKAN')
-            ->latest()
-            ->get();
-        return view('kepala.laporanpengembalian', compact('pengembalians'));
-    })->name('kepala.laporan_pengembalian');
-
-    Route::get('/laporan/denda', function () {
-        $peminjamans = Peminjaman::with(['user', 'buku'])->where('denda', '>', 0)->get();
-        return view('kepala.laporandenda', compact('peminjamans'));
-    })->name('kepala.laporan_denda');
+    Route::get('/laporan/pengembalian', [KepalaController::class, 'laporanPengembalian'])->name('kepala.laporan_pengembalian');
+    Route::get('/laporan/denda', [KepalaController::class, 'laporanDenda'])->name('kepala.laporan_denda');
 });
 });

@@ -27,6 +27,7 @@
 @section('content')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{ asset('assets/js/buku.js') }}"></script>
+
 <div class="container-fluid py-4">
   <div class="row mt-2"> 
     <div class="col-12">
@@ -62,7 +63,6 @@
                         <p class="text-sm font-weight-bold mb-0" style="color: #344767;">{{ $anggota->name }}</p>
                       </td>
                       <td style="padding-left: 35px;">
-                        {{-- Logika warna: Kepala (Merah), Petugas (Biru), Anggota (Abu-abu) --}}
                         <span class="badge-role" 
                               style="background: {{ $anggota->role == 'kepala' ? '#f44335' : ($anggota->role == 'petugas' ? '#2152ff' : '#67748e') }};">
                           {{ $anggota->role }}
@@ -79,7 +79,7 @@
                               @method('DELETE')
                               <button type="button" class="btn btn-xs mb-0 px-3 py-1 btn-hapus" data-id="{{ $anggota->id }}"
                                       style="background-color: #f44335; color: #fff; font-size: 10px; border-radius: 5px; font-weight: 700; border: none;">
-                                      HAPUS
+                                      HAPUS 
                               </button>
                           </form>
                         </div>
@@ -100,4 +100,32 @@
     </div>
   </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('.btn-hapus');
+        
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const dataId = this.getAttribute('data-id');
+                const form = document.getElementById('form-hapus-' + dataId);
+
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Data ini akan dihapus secara permanen!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#f44335',
+                    cancelButtonColor: '#67748e',
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
 @endsection

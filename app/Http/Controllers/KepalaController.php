@@ -31,9 +31,7 @@ class KepalaController extends Controller
 
 public function laporanDenda()
 {
-    // Samain kayak petugas, narik dari model Peminjaman
     $peminjamans = Peminjaman::with(['user', 'buku'])
-        ->where('denda', '!=', 0)
         ->latest()
         ->get();
 
@@ -57,7 +55,7 @@ public function laporanDenda()
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
             'password' => 'required',
-            'no_hp' => 'required|numeric'
+            // 'no_hp' => 'required|numeric'
         ]);
 
         User::create([
@@ -65,8 +63,8 @@ public function laporanDenda()
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'anggota',
-            'alamat' => $request->alamat,
-            'no_hp' => $request->no_hp,
+            // 'alamat' => $request->alamat,
+            // 'no_hp' => $request->no_hp,
         ]);
 
         return redirect()->route('kepala.anggota')->with('success', 'Anggota ditambahkan!');

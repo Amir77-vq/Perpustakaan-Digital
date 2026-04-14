@@ -1,9 +1,7 @@
 @extends('layouts.app')
 
 @push('scripts')
-
     <script src="{{ asset('assets/js/validation-denda.js') }}?v={{ time() }}"></script>
-
 @endpush
 
 @section('content')
@@ -43,40 +41,34 @@
                                 <div class="p-3 border-radius-lg bg-light border mb-4">
                                     <div class="d-flex justify-content-between mb-2">
                                         <span class="text-sm text-secondary">Tanggal Pinjam</span>
-                                        <span
-                                            class="text-sm font-weight-bold text-dark">{{ date('d M Y', strtotime($peminjaman->tgl_pinjam)) }}</span>
+                                        <span class="text-sm font-weight-bold text-dark">{{ date('d M Y', strtotime($peminjaman->tgl_pinjam)) }}</span>
                                     </div>
                                     <div class="d-flex justify-content-between">
                                         <span class="text-sm text-secondary">Batas Kembali</span>
-                                        <span
-                                            class="text-sm font-weight-bold text-danger">{{ date('d M Y', strtotime($peminjaman->jatuh_tempo)) }}</span>
+                                        <span class="text-sm font-weight-bold text-danger">{{ date('d M Y', strtotime($peminjaman->jatuh_tempo)) }}</span>
                                     </div>
                                 </div>
 
-                                <h6 class="text-uppercase text-muted text-xxs font-weight-bolder mb-3">Rincian Pembayaran
-                                </h6>
+                                <h6 class="text-uppercase text-muted text-xxs font-weight-bolder mb-3">Rincian Pembayaran</h6>
                                 <ul class="list-group">
-                                    <li
-                                        class="list-group-item border-0 d-flex justify-content-between ps-0 mb-0 border-radius-lg">
+                                    <li class="list-group-item border-0 d-flex justify-content-between ps-0 mb-0 border-radius-lg">
                                         <div class="d-flex flex-column">
                                             <h6 class="mb-1 text-dark font-weight-bold text-sm">Denda Keterlambatan</h6>
                                             <span class="text-xs">Kalkulasi: {{ $terlambat }} hari &times; Rp 2.000</span>
                                         </div>
-                                        <div
-                                            class="d-flex align-items-center text-danger text-gradient text-sm font-weight-bold">
-                                            Rp {{ number_format($denda, 0, ',', '.') }}
+                                        <div class="d-flex align-items-center text-danger text-gradient text-sm font-weight-bold">
+                                            Rp {{ number_format(abs($totalDenda), 0, ',', '.') }}
                                         </div>
                                     </li>
 
                                     <hr class="my-3" style="border: 0; border-top: 2px solid #344767; opacity: 0.1;">
 
-                                    <li
-                                        class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
+                                    <li class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
                                         <div class="d-flex flex-column">
                                             <h6 class="mb-1 text-dark font-weight-bolder text-sm">TOTAL TAGIHAN</h6>
                                         </div>
                                         <div class="d-flex align-items-center text-danger text-lg font-weight-bolder">
-                                            Rp {{ number_format($denda, 0, ',', '.') }}
+                                            Rp {{ number_format(abs($totalDenda), 0, ',', '.') }}
                                         </div>
                                     </li>
                                 </ul>
@@ -88,17 +80,13 @@
                                 <form action="{{ route('pengembalian.proses', $peminjaman->id) }}" method="POST">
                                     @csrf
                                     <input type="hidden" name="id_peminjaman" value="{{ $peminjaman->id }}">
-                                    <input type="hidden" name="denda" value="{{ $denda }}">
-                                    <input type="hidden" id="input_total_denda" value="{{ $denda }}">
+                                    <input type="hidden" name="denda" value="{{ $totalDenda }}">
+                                    <input type="hidden" id="input_total_denda" value="{{ $totalDenda }}">
 
                                     <div class="form-group mb-3">
-                                        <label
-                                            class="form-control-label text-xs font-weight-bold text-uppercase text-muted">Bayar
-                                            Tunai</label>
-                                        <div class="p-2 border-radius-md bg-light d-flex align-items-center"
-                                            style="height: 50px;">
-                                            <span class="ps-2 text-dark font-weight-bolder"
-                                                style="font-size: 1.1rem;">Rp</span>
+                                        <label class="form-control-label text-xs font-weight-bold text-uppercase text-muted">Bayar Tunai</label>
+                                        <div class="p-2 border-radius-md bg-light d-flex align-items-center" style="height: 50px;">
+                                            <span class="ps-2 text-dark font-weight-bolder" style="font-size: 1.1rem;">Rp</span>
                                             <input type="number" id="input_bayar" name="bayar"
                                                 class="form-control border-0 bg-transparent text-dark font-weight-bolder no-spin"
                                                 required onkeydown="return disableArrowKeys(event)"
@@ -107,12 +95,9 @@
                                     </div>
 
                                     <div class="form-group mb-4">
-                                        <label
-                                            class="form-control-label text-xs font-weight-bold text-uppercase text-muted">Kembalian</label>
-                                        <div class="p-2 border-radius-md bg-light d-flex align-items-center"
-                                            style="height: 50px;">
-                                            <h5 class="mb-0 text-dark font-weight-bolder ps-2" id="text_kembalian"
-                                                style="font-size: 1.1rem;">Rp 0</h5>
+                                        <label class="form-control-label text-xs font-weight-bold text-uppercase text-muted">Kembalian</label>
+                                        <div class="p-2 border-radius-md bg-light d-flex align-items-center" style="height: 50px;">
+                                            <h5 class="mb-0 text-dark font-weight-bolder ps-2" id="text_kembalian" style="font-size: 1.1rem;">Rp 0</h5>
                                         </div>
                                     </div>
 

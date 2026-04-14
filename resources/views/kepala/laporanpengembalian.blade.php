@@ -57,7 +57,7 @@
                                             {{-- Nama Anggota (Gue balikin ke mentahan lu) --}}
                                             <td class="ps-2">
                                                 <p class="text-sm font-weight-bold mb-0" style="color: #344767;">
-                                                    {{ $item->user->name ?? '-' }}
+                                                    {{ $item->peminjaman->user->name ?? '-' }}
                                                 </p>
                                             </td>
 
@@ -97,7 +97,7 @@
                                                 <span
                                                     class="text-xs font-weight-bold {{ ($item->denda ?? 0) != 0 ? 'text-dark' : 'text-secondary' }}">
                                                     @if(($item->denda ?? 0) != 0)
-                                                        Rp {{ number_format(abs($item->denda), 0, ',', '.') }}
+                                                        Rp {{ number_format(abs($totalDenda ?? 0), 0, ',', '.') }}
                                                     @else
                                                         -
                                                     @endif

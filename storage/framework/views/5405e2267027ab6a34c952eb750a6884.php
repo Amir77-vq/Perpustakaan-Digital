@@ -57,7 +57,7 @@
                                             
                                             <td class="ps-2">
                                                 <p class="text-sm font-weight-bold mb-0" style="color: #344767;">
-                                                    <?php echo e($item->user->name ?? '-'); ?>
+                                                    <?php echo e($item->peminjaman->user->name ?? '-'); ?>
 
                                                 </p>
                                             </td>

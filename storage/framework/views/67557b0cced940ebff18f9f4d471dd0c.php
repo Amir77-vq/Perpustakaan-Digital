@@ -27,6 +27,7 @@
 <?php $__env->startSection('content'); ?>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="<?php echo e(asset('assets/js/buku.js')); ?>"></script>
+
 <div class="container-fluid py-4">
   <div class="row mt-2"> 
     <div class="col-12">
@@ -62,7 +63,6 @@
                         <p class="text-sm font-weight-bold mb-0" style="color: #344767;"><?php echo e($anggota->name); ?></p>
                       </td>
                       <td style="padding-left: 35px;">
-                        
                         <span class="badge-role" 
                               style="background: <?php echo e($anggota->role == 'kepala' ? '#f44335' : ($anggota->role == 'petugas' ? '#2152ff' : '#67748e')); ?>;">
                           <?php echo e($anggota->role); ?>
@@ -80,7 +80,7 @@
                               <?php echo method_field('DELETE'); ?>
                               <button type="button" class="btn btn-xs mb-0 px-3 py-1 btn-hapus" data-id="<?php echo e($anggota->id); ?>"
                                       style="background-color: #f44335; color: #fff; font-size: 10px; border-radius: 5px; font-weight: 700; border: none;">
-                                      HAPUS
+                                      HAPUS 
                               </button>
                           </form>
                         </div>
@@ -101,5 +101,33 @@
     </div>
   </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('.btn-hapus');
+        
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const dataId = this.getAttribute('data-id');
+                const form = document.getElementById('form-hapus-' + dataId);
+
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Data ini akan dihapus secara permanen!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#f44335',
+                    cancelButtonColor: '#67748e',
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\perpustakaan-digital\resources\views/kepala/anggota.blade.php ENDPATH**/ ?>
