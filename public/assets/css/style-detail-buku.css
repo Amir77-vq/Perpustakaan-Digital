@@ -85,7 +85,7 @@
     opacity: 0.9 !important;
 }
 
-.btn-primary, 
+/* .btn-primary, 
 .btn-primary:hover, 
 .btn-primary:focus, 
 .btn-primary:active, 
@@ -94,7 +94,7 @@
     color: #fff !important;
     border: none !important;
     box-shadow: 0 4px 7px -1px rgba(0, 0, 0, 0.11), 0 2px 4px -1px rgba(0, 0, 0, 0.07) !important;
-}
+} */
 
 /* Menghilangkan efek warna default saat ditekan (ripple/focus) */
 .btn:focus-visible, .btn:focus {

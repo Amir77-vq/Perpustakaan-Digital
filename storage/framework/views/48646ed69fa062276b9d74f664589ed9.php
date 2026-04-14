@@ -24,8 +24,6 @@
                 </form>
             </div>
         </div>
-
-        
         <div class="row" id="bookContainer">
             <?php $__empty_1 = true; $__currentLoopData = $books; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $book): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                 <div class="col-xl-3 col-md-4 col-sm-6 mb-4 book-item">
@@ -53,7 +51,6 @@
                                     <p class="text-xs text-secondary mb-2 text-truncate penulis-buku"> <?php echo e($book->penulis); ?></p>
                                 </div>
                             </div>
-
                             <div class="book-details-bottom">
                                 <div class="d-flex align-items-center mb-1">
                                     <span class="status-indicator"
@@ -70,7 +67,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="row mt-3 g-2">
                                 <div class="col-6">
                                     <a href="<?php echo e(route('buku.show', $book->id)); ?>" class="btn btn-sm w-100 mb-0 shadow-none"
@@ -78,9 +74,15 @@
                                 </div>
                                 <div class="col-6">
                                     <?php if($book->stok > 0): ?>
-                                        <a href="<?php echo e(route('buku.ajukan', $book->id)); ?>"
-                                            class="btn btn-sm w-100 mb-0 shadow-none text-white"
-                                            style="background: linear-gradient(310deg, #2152ff, #21d4fd); text-transform: none; font-weight: 700; border-radius: 6px;">Pinjam</a>
+                                        <?php if($statusBermasalah): ?>
+                                            <a href="<?php echo e(route('buku.ajukan', $book->id)); ?>"
+                                                class="btn btn-sm w-100 mb-0 shadow-none text-white"
+                                                style="background: linear-gradient(310deg, #ea0606, #ff667c); text-transform: none; font-weight: 700; border-radius: 6px;">Pinjam</a>
+                                        <?php else: ?>
+                                            <a href="<?php echo e(route('buku.ajukan', $book->id)); ?>"
+                                                class="btn btn-sm w-100 mb-0 shadow-none text-white"
+                                                style="background: linear-gradient(310deg, #2152ff, #21d4fd); text-transform: none; font-weight: 700; border-radius: 6px;">Pinjam</a>
+                                        <?php endif; ?>
                                     <?php else: ?>
                                         <button class="btn btn-sm w-100 mb-0 shadow-none text-white" disabled
                                             style="background-color: #d2d6da; text-transform: none; font-weight: 700; border-radius: 6px;">Habis</button>

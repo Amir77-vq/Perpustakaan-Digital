@@ -102,7 +102,7 @@
                                                 <span
                                                     class="text-xs font-weight-bold <?php echo e(($item->denda ?? 0) != 0 ? 'text-dark' : 'text-secondary'); ?>">
                                                     <?php if(($item->denda ?? 0) != 0): ?>
-                                                        Rp <?php echo e(number_format(abs($item->denda), 0, ',', '.')); ?>
+                                                        Rp <?php echo e(number_format(abs($totalDenda ?? 0), 0, ',', '.')); ?>
 
                                                     <?php else: ?>
                                                         -

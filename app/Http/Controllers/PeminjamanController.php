@@ -43,48 +43,61 @@ class PeminjamanController extends Controller
         return view('anggota.history', compact('peminjamans', 'totalDenda'));
     }
 
-public function prosesPengembalian($id)
-{
-    $peminjaman = Peminjaman::findOrFail($id);
-    
-    // Pake startOfDay biar hitungan harinya presisi (nggak hitung jam)
-    $tgl_sekarang = Carbon::now()->startOfDay();
-    $jatuh_tempo = Carbon::parse($peminjaman->jatuh_tempo)->startOfDay();
-    $denda = 0;
-    $terlambat = 0;
+    public function prosesPengembalian($id)
+    {
+        $peminjaman = Peminjaman::findOrFail($id);
+        $tgl_sekarang = Carbon::now()->startOfDay();
+        $jatuh_tempo = Carbon::parse($peminjaman->jatuh_tempo)->startOfDay();
+        $denda = 0;
+        $terlambat = 0;
 
-    if ($tgl_sekarang->gt($jatuh_tempo)) {
-        $terlambat = $tgl_sekarang->diffInDays($jatuh_tempo);
-        $denda = $terlambat * 2000;
-    }
+        if ($tgl_sekarang->gt($jatuh_tempo)) {
+            $terlambat = $tgl_sekarang->diffInDays($jatuh_tempo);
+            $denda = $terlambat * 2000;
+        }
 
-    // Update di tabel peminjaman
-    $peminjaman->update([
-        'status' => 'WAITING',
-        'tgl_kembali' => $tgl_sekarang->toDateString(), 
-        'terlambat' => $terlambat,
-        'denda' => $denda
-    ]);
-
-    // Update atau buat di tabel pengembalian (sesuaikan kolom migration)
-    Pengembalian::updateOrCreate(
-        ['peminjaman_id' => $peminjaman->id],
-        [
-            'tanggal_kembali' => $tgl_sekarang->toDateString(),
+        $peminjaman->update([
+            'status' => 'WAITING',
+            'tgl_kembali' => $tgl_sekarang->toDateString(), 
             'terlambat' => $terlambat,
-            'denda' => $denda,
-            'status' => 0 // Masih pending konfirmasi petugas
-        ]
-    );
+            'denda' => $denda
+        ]);
 
-    return redirect()->route('peminjaman.index')->with('success', 'Permintaan pengembalian dikirim!');
-}
+        Pengembalian::updateOrCreate(
+            ['peminjaman_id' => $peminjaman->id],
+            [
+                'tanggal_kembali' => $tgl_sekarang->toDateString(),
+                'terlambat' => $terlambat,
+                'denda' => $denda,
+                'status' => 0
+            ]
+        );
+
+        return redirect()->route('peminjaman.index')->with('success', 'Permintaan pengembalian dikirim!');
+    }
 
     public function store(Request $request)
     {
         $request->validate([
             'id_buku' => 'required|exists:bukus,id'
         ]);
+
+        $lewatJatuhTempo = Peminjaman::where('user_id', Auth::id())
+            ->whereIn('status', ['DIPINJAM', 'DI SETUJUI'])
+            ->where('jatuh_tempo', '<', now()->toDateString())
+            ->exists();
+
+        if ($lewatJatuhTempo) {
+            return redirect()->back()->with('error', 'Peminjaman ditolak! Anda memiliki buku yang sudah melewati batas jatuh tempo.');
+        }
+
+        $punyaDenda = Peminjaman::where('user_id', Auth::id())
+            ->where('denda', '!=', 0)
+            ->exists();
+
+        if ($punyaDenda) {
+            return redirect()->back()->with('error', 'Peminjaman ditolak! Silahkan lunasi denda Anda terlebih dahulu.');
+        }
 
         $sudahPinjam = Peminjaman::where('user_id', Auth::id())
             ->where('buku_id', $request->id_buku)
@@ -102,14 +115,12 @@ public function prosesPengembalian($id)
         }
 
         Peminjaman::create([
-            'user_id' => Auth::id(),
-            'buku_id' => $buku->id,
-            'judul_buku' => $buku->judul,
-            // 'tgl_pinjam'  => Carbon::now()->format('Y-m-d'),
-            // 'jatuh_tempo' => Carbon::now()->addDays(7)->format('Y-m-d'),
-            'tgl_pinjam' => $request->tgl_pinjam,
+            'user_id'     => Auth::id(),
+            'buku_id'     => $buku->id,
+            'judul_buku'  => $buku->judul,
+            'tgl_pinjam'  => $request->tgl_pinjam,
             'jatuh_tempo' => $request->jatuh_tempo,
-            'status' => 'PENDING',
+            'status'      => 'PENDING',
         ]);
 
         $buku->decrement('stok');
